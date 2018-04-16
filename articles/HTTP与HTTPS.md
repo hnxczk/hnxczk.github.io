@@ -166,3 +166,6 @@ POST 请求仅比 GET 请求略安全一点，它的数据不在 URL 中，但�
 HTTPs 采用混合的加密机制，使用公开密钥加密用于传输对称密钥，之后使用对称密钥加密进行通信。
 
 ![How-HTTPS-Works.png](./images/http_3.png)
+
+## 引用
+[https://github.com/CyC2018/Interview-Notebook/blob/master/notes/HTTP.md](https://github.com/CyC2018/Interview-Notebook/blob/master/notes/HTTP.md)
