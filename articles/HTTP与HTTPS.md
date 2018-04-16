@@ -136,7 +136,8 @@ GET 请求通常用于查询、获取数据，而 POST 请求则用于发送数�
 POST 请求仅比 GET 请求略安全一点，它的数据不在 URL 中，但依然以明文的形式存放于 HTTP 的请求头中。
 
 ## HTTPS
-### HTTP 的缺点- 通信使用明文(不加密)，内容可能会被窃听 
+### HTTP 的缺点
+- 通信使用明文(不加密)，内容可能会被窃听 
 - 不验证通信方的身份，因此有可能遭遇伪装 
 - 无法证明报文的完整性，所以有可能已遭篡改
 
@@ -164,8 +165,7 @@ POST 请求仅比 GET 请求略安全一点，它的数据不在 URL 中，但�
 #### 3. HTTPs 采用的加密方式
 
 HTTPs 采用混合的加密机制，使用公开密钥加密用于传输对称密钥，之后使用对称密钥加密进行通信。
-
-![How-HTTPS-Works.png](./images/http_3.png)
+<div align="center"> <img src="./images/http_3.png"/> </div>
 
 ## 引用
 [https://github.com/CyC2018/Interview-Notebook/blob/master/notes/HTTP.md](https://github.com/CyC2018/Interview-Notebook/blob/master/notes/HTTP.md)
