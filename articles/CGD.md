@@ -260,6 +260,7 @@ _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
 ```
 
+
 # 参考资料
 - Objective-C高级编程 iOS与OS X多线程和内存管理》
 - 《Effective Objective-C 2.0  编写高质量iOS与OS X代码的52个有效方法》

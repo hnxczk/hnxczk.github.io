@@ -1,13 +1,13 @@
 # 周小可的博客
 
 
-## OC
+## iOS
 
 - [GCD](./articles/CGD.md)
 - [性能优化](./articles/性能优化.md)
+- [iOS中的锁](./articles/locks.md)
 
 
-## Swift
 
 ## 算法
 - [哈希表](./articles/哈希表.md)
