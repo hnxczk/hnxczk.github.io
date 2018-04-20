@@ -1,6 +1,24 @@
 # iOS中的锁
 
-开发中利用多线程来编程的时候往往会遇到线程安全的问题，这个时候就需要利用到锁。基本上来说锁的作用就是当一个线程A来执行一段代码的时候加上锁，这样其他的线程比如B就无法访问这段代码，只有A线程访问完成之后解锁，B线程才能访问。这样一来就可以确保线程安全了。
+开发中利用多线程来编程的时候往往会遇到线程安全的问题，这个时候就需要利用到锁。
+锁大致可以分为三类**信号量**、**互斥体**和**自旋锁**。具体的区别可以看 [信号量、互斥体和自旋锁](http://www.cnblogs.com/biyeymyhjob/archive/2012/07/21/2602015.html)
+
+在iOS中 `pthread_mutex` 是互斥锁。可以传入不同参数，实现递归锁 `pthread_mutex(recursive)`。`NSLock`，`NSCondition`，`NSRecursiveLock`，`NSConditionLock`都是内部封装的pthread_mutex，都属于互斥锁。@synchronized 是 NSLock 的一种封装，牺牲了效率，简洁了语法。`OSSpinLock` 是自旋锁，效率较高，但是由于现在的iOS因为优先级反转的问题，已经不安全。
+
+
+## 互斥锁与自旋锁
+	
+### 原理简介
+- **自旋锁会忙等**: 所谓忙等，即在访问被锁资源时，调用者线程不会休眠，而是不停循环在那里，直到被锁资源释放锁。
+	
+- **互斥锁会休眠**: 所谓休眠，即在访问被锁资源时，调用者线程会休眠，此时cpu可以调度其他线程工作。直到被锁资源释放锁。此时会唤醒休眠线程。
+
+### 优缺点：
+
+自旋锁的优点在于，因为自旋锁不会引起调用者睡眠，所以不会进行线程调度，cpu时间片轮转等耗时操作。所有如果能在很短的时间内获得锁，自旋锁的效率远高于互斥锁。
+
+缺点在于，自旋锁一直占用CPU，他在未获得锁的情况下，一直运行－－自旋，所以占用着CPU，如果不能在很短的时 间内获得锁，这无疑会使CPU效率降低。自旋锁不能实现递归调用。
+
 
 ## @synchronized
 这个是我们常见的，也是用起来比较方便的一个锁。比如下面这个例子。
@@ -271,23 +289,6 @@ NSCondition *condition = [[NSCondition alloc] init];
 
 [condition signal];CPU发信号告诉线程不用在等待，可以继续执行
 
-## 分割线
-对于以上从原理方面来说 `pthread_mutex` 表示互斥锁。互斥锁可以传入不同参数，实现递归锁 `pthread_mutex(recursive)`。`NSLock`，`NSCondition`，`NSRecursiveLock`，`NSConditionLock`都是内部封装的pthread_mutex，即都属于互斥锁。@synchronized是NSLock的一种封装，牺牲了效率，简洁了语法。
-
-## 互斥锁与自旋锁
-	
-### 原理简介
-- **自旋锁会忙等**: 所谓忙等，即在访问被锁资源时，调用者线程不会休眠，而是不停循环在那里，直到被锁资源释放锁。
-	
-- **互斥锁会休眠**: 所谓休眠，即在访问被锁资源时，调用者线程会休眠，此时cpu可以调度其他线程工作。直到被锁资源释放锁。此时会唤醒休眠线程。
-
-### 优缺点：
-
-自旋锁的优点在于，因为自旋锁不会引起调用者睡眠，所以不会进行线程调度，cpu时间片轮转等耗时操作。所有如果能在很短的时间内获得锁，自旋锁的效率远高于互斥锁。
-
-缺点在于，自旋锁一直占用CPU，他在未获得锁的情况下，一直运行－－自旋，所以占用着CPU，如果不能在很短的时 间内获得锁，这无疑会使CPU效率降低。自旋锁不能实现递归调用。
-
-
 ## OSSpinLock 
 OSSpinLock 表示自旋锁，效率最高，但是现在的iOS因为优先级反转的问题，已经不安全。
 
@@ -317,6 +318,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 ![](./images/lock_3.png)
 
 ## 参考
+0. [信号量、互斥体和自旋锁](http://www.cnblogs.com/biyeymyhjob/archive/2012/07/21/2602015.html)
 1. [深入理解 iOS 开发中的锁](https://github.com/bestswifter/blog/blob/master/articles/ios-lock.md)
 2. [iOS中保证线程安全的几种方式与性能对比](https://www.jianshu.com/p/938d68ed832c)
 3. [iOS 常见知识点（三）：Lock](https://www.jianshu.com/p/ddbe44064ca4)
