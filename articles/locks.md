@@ -324,3 +324,4 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 3. [iOS 常见知识点（三）：Lock](https://www.jianshu.com/p/ddbe44064ca4)
 4. [不再安全的 OSSpinLock](https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/)
 5. [iOS中自旋锁与互斥锁的区别](https://www.jianshu.com/p/d69495dac8cb)
+6. [深入浅出GCD之dispatch_semaphore](http://cocoa-chen.github.io/2018/03/08/深入浅出GCD之dispatch_semaphore/)
