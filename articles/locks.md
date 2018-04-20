@@ -270,3 +270,55 @@ NSCondition *condition = [[NSCondition alloc] init];
 [condition wait];让当前线程处于等待状态
 
 [condition signal];CPU发信号告诉线程不用在等待，可以继续执行
+
+## 分割线
+对于以上从原理方面来说 `pthread_mutex` 表示互斥锁。互斥锁可以传入不同参数，实现递归锁 `pthread_mutex(recursive)`。`NSLock`，`NSCondition`，`NSRecursiveLock`，`NSConditionLock`都是内部封装的pthread_mutex，即都属于互斥锁。@synchronized是NSLock的一种封装，牺牲了效率，简洁了语法。
+
+## 互斥锁与自旋锁
+	
+### 原理简介
+- **自旋锁会忙等**: 所谓忙等，即在访问被锁资源时，调用者线程不会休眠，而是不停循环在那里，直到被锁资源释放锁。
+	
+- **互斥锁会休眠**: 所谓休眠，即在访问被锁资源时，调用者线程会休眠，此时cpu可以调度其他线程工作。直到被锁资源释放锁。此时会唤醒休眠线程。
+
+### 优缺点：
+
+自旋锁的优点在于，因为自旋锁不会引起调用者睡眠，所以不会进行线程调度，cpu时间片轮转等耗时操作。所有如果能在很短的时间内获得锁，自旋锁的效率远高于互斥锁。
+
+缺点在于，自旋锁一直占用CPU，他在未获得锁的情况下，一直运行－－自旋，所以占用着CPU，如果不能在很短的时 间内获得锁，这无疑会使CPU效率降低。自旋锁不能实现递归调用。
+
+
+## OSSpinLock 
+OSSpinLock 表示自旋锁，效率最高，但是现在的iOS因为优先级反转的问题，已经不安全。
+
+```
+__block OSSpinLock theLock = OS_SPINLOCK_INIT;
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    OSSpinLockLock(&theLock);
+    NSLog(@"需要线程同步的操作1 开始");
+    sleep(3);
+    NSLog(@"需要线程同步的操作1 结束");
+    OSSpinLockUnlock(&theLock);
+    
+});
+
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    OSSpinLockLock(&theLock);
+    sleep(1);
+    NSLog(@"需要线程同步的操作2");
+    OSSpinLockUnlock(&theLock);
+    
+});
+
+```
+
+## 性能
+参考Y神的图
+![](./images/lock_3.png)
+
+## 参考
+1. [深入理解 iOS 开发中的锁](https://github.com/bestswifter/blog/blob/master/articles/ios-lock.md)
+2. [iOS中保证线程安全的几种方式与性能对比](https://www.jianshu.com/p/938d68ed832c)
+3. [iOS 常见知识点（三）：Lock](https://www.jianshu.com/p/ddbe44064ca4)
+4. [不再安全的 OSSpinLock](https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/)
+5. [iOS中自旋锁与互斥锁的区别](https://www.jianshu.com/p/d69495dac8cb)
