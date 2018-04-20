@@ -45,7 +45,7 @@
 
 这一步相当于返还钥匙。
 
-具体用法可以参考我的另外一个 [GCD](./GCD.md) 相关的文章。
+具体用法可以参考我的另外一个 [GCD](./GCD.md) 相关的文章，更多原理方面可以看 [深入浅出GCD之dispatch_semaphore](http://cocoa-chen.github.io/2018/03/08/深入浅出GCD之dispatch_semaphore/)。
 
 ## @synchronized
 这个是我们常见的，也是用起来比较方便的一个锁。比如下面这个例子。
