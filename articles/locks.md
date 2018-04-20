@@ -19,6 +19,33 @@
 
 缺点在于，自旋锁一直占用CPU，他在未获得锁的情况下，一直运行－－自旋，所以占用着CPU，如果不能在很短的时 间内获得锁，这无疑会使CPU效率降低。自旋锁不能实现递归调用。
 
+## dispatch_semaphore
+这是 GCD 提供的一个加锁的方式，更多的称之为信号量。大致可以把信号量理解为进入一个大门的钥匙，比如一个大门有三把钥匙，这时候进去一个人并拿走一个钥匙，等到钥匙被全被拿走的时候就没有人能进入了，必须等里面的人出来后把钥匙挂门口之后别的人才能进去。
+
+三个相关函数：
+
+####  1.`dispatch_semaphore_create(long value);`
+	
+生成信号量，参数value是信号量计数的初始值。
+
+**注意** value 必须大于 0 否则函数就会返回NULL。
+
+这一步相当于声明这个门有几把钥匙。
+
+####  2.`dispatch_semaphore_wait(dispatch_semaphore_t dsema, dispatch_time_t timeout);`
+这个函数会将信号量值减一，如果大于等于0就立即返回，否则等待信号量唤醒或者超时（注意 timeout 的类型为 `dispatch_time_t`，不能直接传入整形或 float 型数），如果等待的期间 desema 的值被`dispatch_semaphore_signal`函数加1了，且该函数（即`dispatch_semaphore_wait`）所处线程获得了信号量，那么就继续向下执行并将信号量减1。如果等待期间没有获取到信号量或者信号量的值一直为0，那么等到 timeout 时，其所处线程自动执行其后语句。
+
+![](./images/lock_1.png)
+
+这一步相当于有钥匙的时候拿走一把钥匙，没有钥匙的时候就要一直等待，并且如果超时时间到了的话会直接进入大门。
+####  3.`dispatch_semaphore_signal(dispatch_semaphore_t dsema);`
+
+会将信号量值加一，如果value大于0立即返回，否则唤醒某个等待中的线程。
+![](./images/lock_2.png)
+
+这一步相当于返还钥匙。
+
+具体用法可以参考我的另外一个 [GCD](./GCD.md) 相关的文章。
 
 ## @synchronized
 这个是我们常见的，也是用起来比较方便的一个锁。比如下面这个例子。
@@ -52,33 +79,6 @@
 
 更多相关内容可以看[这里](http://yulingtianxia.com/blog/2015/11/01/More-than-you-want-to-know-about-synchronized/)
 
-## dispatch_semaphore
-这是 GCD 提供的一个加锁的方式，更多的称之为信号量。大致可以把信号量理解为进入一个大门的钥匙，比如一个大门有三把钥匙，这时候进去一个人并拿走一个钥匙，等到钥匙被全被拿走的时候就没有人能进入了，必须等里面的人出来后把钥匙挂门口之后别的人才能进去。
-
-三个相关函数：
-
-####  1.`dispatch_semaphore_create(long value);`
-	
-生成信号量，参数value是信号量计数的初始值。
-
-**注意** value 必须大于 0 否则函数就会返回NULL。
-
-这一步相当于声明这个门有几把钥匙。
-
-####  2.`dispatch_semaphore_wait(dispatch_semaphore_t dsema, dispatch_time_t timeout);`
-这个函数会将信号量值减一，如果大于等于0就立即返回，否则等待信号量唤醒或者超时（注意 timeout 的类型为 `dispatch_time_t`，不能直接传入整形或 float 型数），如果等待的期间 desema 的值被`dispatch_semaphore_signal`函数加1了，且该函数（即`dispatch_semaphore_wait`）所处线程获得了信号量，那么就继续向下执行并将信号量减1。如果等待期间没有获取到信号量或者信号量的值一直为0，那么等到 timeout 时，其所处线程自动执行其后语句。
-
-![](./images/lock_1.png)
-
-这一步相当于有钥匙的时候拿走一把钥匙，没有钥匙的时候就要一直等待，并且如果超时时间到了的话会直接进入大门。
-####  3.`dispatch_semaphore_signal(dispatch_semaphore_t dsema);`
-
-会将信号量值加一，如果value大于0立即返回，否则唤醒某个等待中的线程。
-![](./images/lock_2.png)
-
-这一步相当于返还钥匙。
-
-具体用法可以参考我的另外一个 [GCD](./GCD.md) 相关的文章。
 
 ## pthread_mutex
 
