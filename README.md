@@ -3,7 +3,7 @@
 
 ## iOS
 
-- [GCD](./articles/CGD.md)
+- [GCD](./articles/GCD.md)
 - [性能优化](./articles/性能优化.md)
 - [iOS中的锁](./articles/locks.md)
 
