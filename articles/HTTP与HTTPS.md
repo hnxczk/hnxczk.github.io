@@ -135,6 +135,18 @@ GET 请求通常用于查询、获取数据，而 POST 请求则用于发送数�
 
 POST 请求仅比 GET 请求略安全一点，它的数据不在 URL 中，但依然以明文的形式存放于 HTTP 的请求头中。
 
+## Post请求体有哪些格式
+HTTP 协议是以 ASCII 码传输，建立在 TCP/IP 协议之上的应用层规范。规范把 HTTP 请求分为三个部分：状态行、请求头、消息主体。
+
+协议规定 POST 提交的数据必须放在消息主体（entity-body）中，但协议并没有规定数据必须使用什么编码方式。实际上，开发者完全可以自己决定消息主体的格式，只要最后发送的 HTTP 请求满足上面的格式就可以。
+
+但是，数据发送出去，还要服务端解析成功才有意义。一般服务端语言如 php、python 等，以及它们的 framework，都内置了自动解析常见数据格式的功能。服务端通常是根据请求头（headers）中的 Content-Type 字段来获知请求中的消息主体是用何种方式编码，再对主体进行解析。所以说到 POST 提交数据方案，包含了 Content-Type 和消息主体编码方式两部分。
+
+1. application/x-www-form-urlencoded
+2. multipart/form-data
+3. application/json
+4. text/xml
+
 ## HTTPS
 ### HTTP 的缺点
 - 通信使用明文(不加密)，内容可能会被窃听 
