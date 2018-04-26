@@ -11,6 +11,7 @@
 ## 算法
 - [哈希表](./articles/哈希表.md)
 - [查找](./articles/search.md)
+- [面试遇到的算法](./articles/interview.md)
 
 ## 网络
 - [网络概述](./articles/网络概述.md)
