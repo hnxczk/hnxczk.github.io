@@ -15,7 +15,7 @@
 - [Facebook 的 Peak](http://mrpeak.cn)
 - [故胤道长](https://www.jianshu.com/u/8d5b91490ca5)
 - [iOS 程序犭袁](https://www.jianshu.com/u/96a14318a4de)
-- [sunny 大神，不过最近博客不怎么更新了](http://blog.sunnyxx.com)
+- [sunny 底层小王子 靠一个 README 获取上千 star 的创造者 ](http://blog.sunnyxx.com)
 - [雷纯锋的技术博客](http://blog.leichunfeng.com/blog/archives/)
 - [J_Knight_](https://juejin.im/user/57f8ffda2e958a005581e3c0/posts)
 - [南峰子的技术博客](http://southpeak.github.io/)
