@@ -465,7 +465,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 ```
 该方法主要用于获取图片，根据设置的策略从缓存中或者从网络下载图片并缓存。并返回 operation。
 
-## SDWebImageCombinedOperation
+### SDWebImageCombinedOperation
 当 url 被正确传入之后, 会实例一个非常奇怪的 "operation", 它其实是一个遵循 SDWebImageOperation 协议的 NSObject 的子类. 而这个协议也非常的简单:
 
 ```
