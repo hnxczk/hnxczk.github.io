@@ -1151,6 +1151,39 @@ dispatch_main_async_safe(^{
     }
 ```
 
+### RunLoop
+在老的版本中的 SDWebImageDownloaderOperation 的 start 函数中，调用了CFRunLoopRun()，我们来看一下CFRunLoopRun到底是做什么的，起到了什么作用。
+
+每一个线程有一个runloop,既不可以创建，也不能销毁线程的runloop。Core Foundation根据需求为你创建，通过CFRunLoopGetMain可以获得当前线程的runloop。调用CFRunLoopRun可以使当前线程的runloop以默认模式运行起来，直到调用CFRunLoopStop来停止runloop。你也可以调用CFRunLoopRunInMode来使当前线程的runloop以指定模式运行起来一段时间或者直到runloop被停止。(runloop只能在请求模式至少有一个source或者timer可监控的情况下运行起来。)
+
+一般主线程会自动运行runloop，我们一般情况下不会去管。在其他子线程中，如果需要我们需要去管理。使用runloop后，可以把线程想象成进入了一个循环；如果没有这个循环，子线程完成任务后，这个线程就结束了。所以如果需要一个线程处理各种事件而不让它结束，就需要运行runloop。
+
+在SDWebImageDownloaderOperation中，
+
+```
+- (void)start{
+ ...
+ self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
+ ...
+
+ if(self.connection){
+ ...
+ CFRunLoopRun()
+ ...
+ }
+}
+
+
+- (void)cancelInternalAndStop {
+ if (self.isFinished) return;
+ [self cancelInternal];
+ CFRunLoopStop(CFRunLoopGetCurrent());
+}
+```
+在创建self.connection成功后，执行了CFRunLoopRun()，开启了runloop。在failed或finished的时候会调用CFRunLoopStop停止runloop。如果不开启runloop的话，在执行完start()后任务就完成了，NSURLConnection的代理就不会执行了。runloop相当于子线程的循环，可以灵活控制子线程的生命周期。
+
+而在最新版本的实现中并没有对应的代码，这大概是因为新版本使用的是 nsurlsession 来发起请求。猜测其内部会对 runloop 进行处理？（望知道的同学不吝赐教 - 提isuess🙏）
+
 ## 参考
 1. [搬好小板凳看SDWebImage源码解析](https://blog.csdn.net/luobo140716/article/details/78829104)
 2. [SDWebImage 源码解析](https://juejin.im/post/5a4080d16fb9a0451969d0aa)
