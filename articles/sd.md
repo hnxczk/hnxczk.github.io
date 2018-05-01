@@ -956,6 +956,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
 }
 ```
 ### NSURLSessionTaskDelegate
+这里只分析了下请求完成的代理方法，在该方法中会对下载完成的图片进行解码。
 
 ```
 // 下载完成或下载失败时的回调方法
