@@ -1,4 +1,4 @@
-# 优质博主
+## 优质博主
 
 - [喵神 OneV's Den](https://onevcat.com/#blog)
 - [Limboy’s HQ](http://limboy.me/category/tech.html)
@@ -20,5 +20,11 @@
 - [J_Knight_](https://juejin.im/user/57f8ffda2e958a005581e3c0/posts)
 - [南峰子的技术博客](http://southpeak.github.io/)
 - [折腾范儿の味精](http://awhisper.github.io/)
+- [DreamPiggy 的博客 关于图片编解码相关内容很不错](http://dreampiggy.com/)
 
-
+## 优质内容网站
+- [NSHipster 一些英文文章 内容很全面 现在也有中文版的了](http://nshipster.com/)
+- [Objc 中国 各种iOS进阶知识，架构](https://objccn.io/issues/)
+- []()
+- []()
+- []()
