@@ -181,7 +181,7 @@ pps: 最新的 demo 中包含了一个 FLAnimatedImageView 的库，大致看了
 ## SDWebImageManager
 在上面的方法中我们了解到下载图片的操作是通过 SDWebImageManager 进行的。通过源码和上方的类图我们可以看出这个类是比较核心的一个类，他通过管理 SDImageCache 和 SDWebImageDownloader 这两个类来协调异步下载和图片缓存。
 
-### 一些管理策略
+### 管理策略
 
 ```
 typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
@@ -651,14 +651,13 @@ _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE
 关于存储相关的更详细说明可以看 [这里](https://blog.csdn.net/ZCMUCZX/article/details/79491589)
 
 ### SDMemoryCache
-该类是用来管理内存缓存的类。其继承自NSCache。其内部有两个属性
+该类是用来管理内存缓存的类。其继承自NSCache。内部有两个属性
 
 ```
 // 存储用的表
 @property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; 
 // 保证线程安全的信号量
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; 
-
 ```
 并且提供以下两个宏，方便进行加锁和解锁
 
@@ -671,4 +670,488 @@ _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE
 
 而对于 weakCache 这个表来说，我们可以看到在存的时候会在 weakCache 和这个类本身中都保存，而在收到内存警告的时候会清空NSCache，而 weakCache 则没有清理。取的时候会先去 NSCache 本身中取，如果为空则去 weakCache 中去取，如果有会从新设置到 NSCache 中。
 
+
 ## SDWebImageDownloader
+它是一个异步下载器，并对图像加载做了优化处理。
+### 下载选项
+
+```
+typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
+	 // 设置图片下载队列的优先级为低优先级
+    SDWebImageDownloaderLowPriority = 1 << 0,
+    
+    // 图片会随着下载进度慢慢显示
+    SDWebImageDownloaderProgressiveDownload = 1 << 1,
+    
+    // 默认情况下请求不使用NSURLCache，如果设置该选项，则以默认的缓存策略来使用NSURLCache
+    SDWebImageDownloaderUseNSURLCache = 1 << 2,
+    
+    // 如果从NSURLCache缓存中读取图片，则使用nil作为参数来调用完成block
+    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
+    
+	// 在iOS 4+系统上，允许程序进入后台后继续下载图片。该操作通过向系统申请额外的时间来完成后台下载。如果后台任务终止，则操作会被取消
+    SDWebImageDownloaderContinueInBackground = 1 << 4,
+    
+    // 通过设置NSMutableURLRequest.HTTPShouldHandleCookies = YES来处理存储在NSHTTPCookieStore中的cookie
+    SDWebImageDownloaderHandleCookies = 1 << 5,
+    
+    // 允许不受信任的SSL证书。主要用于测试目的。
+    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6,
+    
+    // 将图片下载放到高优先级队列中
+    SDWebImageDownloaderHighPriority = 1 << 7,
+    
+    // 压缩图片
+    SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
+};
+```
+
+### downloadImageWithURL
+通过制定 url 来下载，代码中可以看到先调用了 `addProgressCallback` 并在传入的 block 中设置了请求头等一系列参数并根据 request 返回了一个 operation。
+
+```
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+    __weak SDWebImageDownloader *wself = self;
+    
+    return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
+        __strong __typeof (wself) sself = wself;
+        // 设置超时时长，默认是15s
+        NSTimeInterval timeoutInterval = sself.downloadTimeout;
+        if (timeoutInterval == 0.0) {
+            timeoutInterval = 15.0;
+        }
+
+        // 保证只使用 NSURLCache 或者 SDImageCache 中的一种，不要同时使用二者
+        // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
+        NSURLRequestCachePolicy cachePolicy = options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData;
+        // 创建请求
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
+                                                                    cachePolicy:cachePolicy
+                                                                timeoutInterval:timeoutInterval];
+        
+        request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
+        //HTTPShouldUsePipelining设置为YES, 则允许不必等到response, 就可以再次请求. 这个会很大的提高网络请求的效率,但是也可能会出问题
+        //因为客户端无法正确的匹配请求与响应, 所以这依赖于服务器必须保证,响应的顺序与客户端请求的顺序一致.如果服务器不能保证这一点, 那可能导致响应和请求混乱.
+        request.HTTPShouldUsePipelining = YES;
+        
+        // 设置 HTTP header中的 Accept 来告诉服务器倾向于获取 @"image/*;q=0.8" 或者 @"image/webp,image/*;q=0.8" 类型的数据
+        if (sself.headersFilter) {
+            // 过滤 header
+            request.allHTTPHeaderFields = sself.headersFilter(url, [sself allHTTPHeaderFields]);
+        }
+        else {
+            // 设置 header
+            request.allHTTPHeaderFields = [sself allHTTPHeaderFields];
+        }
+        
+        // 使用 operationClass 这个属性来确保生成的 operation 必须遵循 SDWebImageDownloaderOperationInterface 协议
+        // 否则就从新生成一个 SDWebImageDownloaderOperation 对象
+        SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
+        operation.shouldDecompressImages = sself.shouldDecompressImages;
+        
+        // 进行身份认证
+        if (sself.urlCredential) {
+            operation.credential = sself.urlCredential;
+        } else if (sself.username && sself.password) {
+            operation.credential = [NSURLCredential credentialWithUser:sself.username password:sself.password persistence:NSURLCredentialPersistenceForSession];
+        }
+        
+        // 下载优先级
+        if (options & SDWebImageDownloaderHighPriority) {
+            operation.queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            operation.queuePriority = NSOperationQueuePriorityLow;
+        }
+        
+        // 执行顺序是后进先出（栈）的话进行处理
+        if (sself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
+            // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
+            [sself.lastAddedOperation addDependency:operation];
+            sself.lastAddedOperation = operation;
+        }
+
+        return operation;
+    }];
+}
+```
+
+### addProgressCallback
+这个方法主要作用是获取 URLOperations 中的 operation， 没有的话调用 createCallback 进行创建然后加入到 URLOperations 中。然后把取得的 operation 加入到 queue 中。并且会在 operation 完成的回调中从 URLOperations 去除。
+
+```
+- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
+                                                   forURL:(nullable NSURL *)url
+                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback {
+    // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
+    // url 用来作为回调字典的key，如果为空，立即返回失败
+    if (url == nil) {
+        if (completedBlock != nil) {
+            completedBlock(nil, nil, nil, NO);
+        }
+        return nil;
+    }
+    
+    // 使用信号量来确保 URLOperations downloadQueue 的 线程安全
+    // URLOperations 以下载url作为key value是具体的下载operation 用字典来存储，方便cancel等操作
+    LOCK(self.operationsLock);
+    // 根据 url 取出 operation
+    SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
+    // 没有 operation 的话就会调用 createCallback 来获取
+    if (!operation) {
+        operation = createCallback();
+        __weak typeof(self) wself = self;
+        // operation 完成的回调中从 URLOperations 中移除
+        operation.completionBlock = ^{
+            __strong typeof(wself) sself = wself;
+            if (!sself) {
+                return;
+            }
+            LOCK(sself.operationsLock);
+            [sself.URLOperations removeObjectForKey:url];
+            UNLOCK(sself.operationsLock);
+        };
+        // 添加到 URLOperations 中
+        [self.URLOperations setObject:operation forKey:url];
+        // Add operation to operation queue only after all configuration done according to Apple's doc.
+        // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
+        // 这段代码不会造成死锁的原因是 当 operation 加入 queue 中时并不会同步的执行 operation.completionBlock
+        [self.downloadQueue addOperation:operation];
+    }
+    UNLOCK(self.operationsLock);
+
+    // 把 progressBlock 和 completedBlock 放入 callbackBlocks 中
+    id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+    
+    // 生成 token ，后续 manger 可以根据 token 取消相应的操作
+    SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
+    token.downloadOperation = operation;
+    token.url = url;
+    token.downloadOperationCancelToken = downloadOperationCancelToken;
+
+    return token;
+}
+```
+
+## SDWebImageDownloaderOperation
+由上面的代码我们可以看出他们做的工作就是生成 operation 然后对 operation 进行一些处理。而`SDWebImageDownloaderOperation `才是具体的执行图片下载的单位。他继承自 NSOperation ，负责生成 NSURLSessionTask 进行图片请求，支持下载取消和后台下载，在下载中及时汇报下载进度，在下载成功后，对图片进行解码，缩放和压缩等操作。 
+
+### start
+
+```
+// 重写operation的start方法，当任务添加到NSOperationQueue后会执行该方法，启动下载任务
+- (void)start {
+    //添加锁，防止多线程数据竞争
+    @synchronized (self) {
+        if (self.isCancelled) {
+            self.finished = YES;
+            [self reset];
+            return;
+        }
+
+#if SD_UIKIT
+        // 如调用者配置了在后台可以继续下载图片，那么在这里继续下载
+        Class UIApplicationClass = NSClassFromString(@"UIApplication");
+        BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
+        if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
+            __weak __typeof__ (self) wself = self;
+            UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
+            self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
+                __strong __typeof (wself) sself = wself;
+
+                if (sself) {
+                    [sself cancel];
+
+                    [app endBackgroundTask:sself.backgroundTaskId];
+                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                }
+            }];
+        }
+#endif
+        // 判断unownedSession是否为了nil，如果是nil则重新创建一个ownedSession
+        // 注意这里unownedSession使用的属性修饰符是weak，因为unownedSession是从SDWebImageDownloader传过来的，所以需要SDWebImageDownloader管理
+        // 如果unownedSession是nil，我们需要手动创建一个并且管理它的生命周期和代理方法
+        NSURLSession *session = self.unownedSession;
+        if (!session) {
+            NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+            sessionConfig.timeoutIntervalForRequest = 15;
+            
+            /**
+             *  Create the session for this task
+             *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
+             *  method calls and completion handler calls.
+             */
+            session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                    delegate:self
+                                               delegateQueue:nil];
+            self.ownedSession = session;
+        }
+        
+        // 获取网络请求的缓存数据
+        if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
+            // Grab the cached data for later check
+            NSURLCache *URLCache = session.configuration.URLCache;
+            if (!URLCache) {
+                URLCache = [NSURLCache sharedURLCache];
+            }
+            NSCachedURLResponse *cachedResponse;
+            // NSURLCache's `cachedResponseForRequest:` is not thread-safe, see https://developer.apple.com/documentation/foundation/nsurlcache#2317483
+            @synchronized (URLCache) {
+                cachedResponse = [URLCache cachedResponseForRequest:self.request];
+            }
+            if (cachedResponse) {
+                self.cachedData = cachedResponse.data;
+            }
+        }
+        //使用 session 来创建一个 NSURLSessionDataTask 类型下载任务
+        self.dataTask = [session dataTaskWithRequest:self.request];
+        self.executing = YES;
+    }
+
+    if (self.dataTask) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+        if ([self.dataTask respondsToSelector:@selector(setPriority:)]) {
+            if (self.options & SDWebImageDownloaderHighPriority) {
+                self.dataTask.priority = NSURLSessionTaskPriorityHigh;
+            } else if (self.options & SDWebImageDownloaderLowPriority) {
+                self.dataTask.priority = NSURLSessionTaskPriorityLow;
+            }
+        }
+#pragma clang diagnostic pop
+        // 开始执行任务
+        [self.dataTask resume];
+        // 任务开启，遍历进度块数组 执行第一个下载进度 进度为0
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+            progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
+        }
+        __weak typeof(self) weakSelf = self;
+        //在主线程发送通知，并将self传出去，为什么在主线程发送呢？
+        //因为在哪个线程发送通知就在哪个线程接受通知，这样如果在接受通知方法中执行修改UI的操作也不会有问题
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
+        });
+    } else {
+        // 如果创建tataTask失败就执行失败的回调块
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
+        [self done];
+        return;
+    }
+
+#if SD_UIKIT
+    // 后台继续下载
+    Class UIApplicationClass = NSClassFromString(@"UIApplication");
+    if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
+        return;
+    }
+    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
+        [app endBackgroundTask:self.backgroundTaskId];
+        self.backgroundTaskId = UIBackgroundTaskInvalid;
+    }
+#endif
+}
+```
+### NSURLSessionTaskDelegate
+
+```
+// 下载完成或下载失败时的回调方法
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    @synchronized(self) {
+        self.dataTask = nil;
+        __weak typeof(self) weakSelf = self;
+        // 回到主线程发送下载结束的通知
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            if (!error) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:weakSelf];
+            }
+        });
+    }
+    
+    // make sure to call `[self done]` to mark operation as finished
+    // 下载失败则走失败的回调
+    if (error) {
+        [self callCompletionBlocksWithError:error];
+        [self done];
+    } else {
+        // 判断下载回调结束块数量是否大于0
+        if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
+            /**
+             *  If you specified to use `NSURLCache`, then the response you get here is what you need.
+             */
+            __block NSData *imageData = [self.imageData copy];
+            // 如果图片存在
+            if (imageData) {
+                /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
+                 *  then we should check if the cached data is equal to image data
+                 */
+                // 判断调用是否配置了使用缓存，如果是则判断缓存data是否和当前图片一致，如果一致则回调结束
+                if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
+                    // call completion block with nil
+                    [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+                    [self done];
+                } else {
+                    // 在 coderQueue 这个串行队列中对图片 data 解码
+                    // decode the image in coder queue
+                    dispatch_async(self.coderQueue, ^{
+                        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
+                        // 根据图片url获得缓存的key
+                        NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                        // 对图片进行缩放
+                        image = [self scaledImageForKey:key image:image];
+                        
+                        BOOL shouldDecode = YES;
+                        // Do not force decoding animated GIFs and WebPs
+                        // 针对GIF和WebP图片不做压缩
+                        if (image.images) {
+                            shouldDecode = NO;
+                        } else {
+#ifdef SD_WEBP
+                            // sd_imageFormatForImageData分类方法判断是哪种图片格式
+                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                            if (imageFormat == SDImageFormatWebP) {
+                                shouldDecode = NO;
+                            }
+#endif
+                        }
+                        // 如果是可以压缩的格式，并且调用者也设置了压缩，那么这里开始压缩图片
+                        if (shouldDecode) {
+                            if (self.shouldDecompressImages) {
+                                BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
+                                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
+                            }
+                        }
+                        CGSize imageSize = image.size;
+                        if (imageSize.width == 0 || imageSize.height == 0) {
+                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                        } else {
+                            // 不存在图片直接回调结束
+                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                        }
+                        [self done];
+                    });
+                }
+            } else {
+                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
+                [self done];
+            }
+        } else {
+            // 结束后的操作
+            [self done];
+        }
+    }
+}
+
+```
+
+## 下载流程
+具体的下载流程用文字来叙述： 
+
+1. 首先生成继承自NSOperation的SDWebImageDownloaderOperation，配置当前operation。 
+2. 将operation添加到NSOperationQueue下载队列中，添加到下载队列会触发operation的start方法。 
+3. 如果发现operation的isCancelled为YES，说明已经被取消，则finished=YES结束下载。 
+4. 创建NSURLSessionTask执行resume开始下载。 
+5. 当收到服务端的相应时根据code判断请求状态，如果是正常状态则发送正在接受response的通知以及下载进度。如果是304或者其他异常状态则cancel下载操作。 
+6. 在didReceiveData每次收到服务器的返回response时，给可变data追加图片当前下载的data，并汇报下载的进度。 
+7. 在didCompleteWithError下载结束时，如果下载成功进行图片data解码，图片的缩放或者压缩操作，发送下载结束通知。下载失败执行失败回调。 
+
+## 相关技术点
+### NS_OPTIONS与位运算
+NS_OPTIONS 用来定义位移相关操作的枚举值，当一个枚举变量需要携带多种值的时候就需要，我们可以参考 UIKit.Framework 的头文件，可以看到大量的枚举定义。例如在 SDWebImage 下面就会接触到 SDWebImageOptions 枚举值：
+
+```
+typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
+    SDWebImageRetryFailed = 1 << 0,
+    SDWebImageLowPriority = 1 << 1,
+    SDWebImageCacheMemoryOnly = 1 << 2,
+    SDWebImageProgressiveDownload = 1 << 3,
+    SDWebImageRefreshCached = 1 << 4,
+    SDWebImageContinueInBackground = 1 << 5,
+    ...
+};
+```
+“<<”是位运算中的左移运算符，第一个值 SDWebImageRetryFailed = 1 << 0，十进制1转化为二进制：0b00000001，这里 <<0 将所有二进制位左移0位，那么还是0b00000001，最终SDWebImageRetryFailed 值为1. 
+第二个枚举值SDWebImageLowPriority = 1<<1,这里是将1的二进制所有位向左移动1位，空缺的用0补齐，那么0b00000001变成0b00000010，十进制为2则SDWebImageLowPriority值为2。 
+
+下面来举个使用的例子
+
+```
+ [customImageView sd_setImageWithURL:url placeholderImage:nil options:SDWebImageRetryFailed | SDWebImageCacheMemoryOnly];
+```
+注意到代码中用到了”|”，‘|’是位运算中的或运算，需要两个操作数，作用是将两个数的相同位进行逻辑或运算，即如果两个对应位有一个位1，则运算后此位为1，如果两个对应位都为0。例如十进制1的二进制0b00000001 | 十进制2的二进制0b00000010，结果为0b00000011十进制为3。
+
+![](./images/sd_3.png)
+
+具体的用法可以通过下面的代码来演示
+
+```
+if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
+    }
+```
+‘&’是位运算中的与运算，当对应位数同为1结果才为1.例如十进制1的二进制0b00000001&十进制2的二进制0b00000010，结果为0b00000000十进制是0. 
+![](./images/sd_4.png)
+
+上面的代码中，SD将此时的options二进制0b00000101和SDWebImageRetryFailed的二进制进行&运算，如果options包含了SDWebImageRetryFailed则结果为真。
+
+### 如何快速判断当前程序是否有指定类
+可以通过以下代码来进行判断
+
+```
+    if (NSClassFromString(@"SDNetworkActivityIndicator")) {
+	}
+```
+
+### NSCache
+NSCache 类：一个类似于集合的容器。它存储 key-value 对，这一点类似于NSDictionary类。我们通常用使用缓存来临时存储短时间使用但创建昂贵的对象。重用这些对象可以优化性能，因为它们的值不需要重新计算。另外一方面，这些对象对于程序来说不是紧要的，在内存紧张时会被丢弃。
+
+NSCache与可变集合有几点不同：
+
+- NSCache类结合了各种自动删除策略，以确保不会占用过多的系统内存。如果其它应用需要内存时，系统自动执行这些策略。当调用这些策略时，会从缓存中删除一些对象，以最大限度减少内存的占用。
+- NSCache是线程安全的，我们可以在不同的线程中添加、删除和查询缓存中的对象，而不需要锁定缓存区域。
+- 不像NSMutableDictionary对象，一个缓存对象不会拷贝key对象。
+
+### NSOperation 及 NSOperationQueue
+操作队列是Objective-C中一种高级的并发处理方法，现在它是基于GCD来实现的。相对于GCD来说，操作队列的优点是可以取消在任务处理队列中的任务，另外在管理操作间的依赖关系方面也容易一些。对 SDWebImage 中我们就看到了如何使用依赖将下载顺序设置成后进先出的顺序。而且最核心的下载图片与图片解码的工作都是在其自定义的 SDWebImageDownloaderOperation 中来实现的。
+
+### 确保在主线程的宏
+
+```
+#define dispatch_main_async_safe(block)\
+    if (strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(dispatch_get_main_queue())) == 0) {\
+        block();\
+    } else {\
+        dispatch_async(dispatch_get_main_queue(), block);\
+    }
+#endif
+```
+```
+dispatch_main_async_safe(^{
+ 				 //将下面这段代码放在主线程中
+            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+        });
+```
+
+### 锁
+在代码里面用的最多的锁就是 `dispatch_semaphore_t` 这个信号量，并定义了两个宏来方便操作。其特点就是性能相对较好。
+
+```
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
+```
+另外常见的锁就是下面这个互斥锁的用法
+
+```
+@synchronized (self.runningOperations) {
+        [self.runningOperations addObject:operation];
+    }
+```
+
+## 参考
+1. [搬好小板凳看SDWebImage源码解析](https://blog.csdn.net/luobo140716/article/details/78829104)
+2. [SDWebImage 源码解析](https://juejin.im/post/5a4080d16fb9a0451969d0aa)
+3. [iOS 源代码分析 --- SDWebImage](https://github.com/Draveness/analyze/blob/master/contents/SDWebImage/iOS%20源代码分析%20---%20SDWebImage.md)
+4. [SDWebImage实现分析](http://southpeak.github.io/2015/02/07/sourcecode-sdwebimage/)
