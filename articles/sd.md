@@ -1187,5 +1187,6 @@ dispatch_main_async_safe(^{
 ## 参考
 1. [搬好小板凳看SDWebImage源码解析](https://blog.csdn.net/luobo140716/article/details/78829104)
 2. [SDWebImage 源码解析](https://juejin.im/post/5a4080d16fb9a0451969d0aa)
-3. [iOS 源代码分析 --- SDWebImage](https://github.com/Draveness/analyze/blob/master/contents/SDWebImage/iOS%20源代码分析%20---%20SDWebImage.md)
-4. [SDWebImage实现分析](http://southpeak.github.io/2015/02/07/sourcecode-sdwebimage/)
+3. [SDWebImage-存储图片到磁盘和内存过程](https://blog.csdn.net/ZCMUCZX/article/details/79491589)
+4. [iOS 源代码分析 --- SDWebImage](https://github.com/Draveness/analyze/blob/master/contents/SDWebImage/iOS%20源代码分析%20---%20SDWebImage.md)
+5. [SDWebImage实现分析](http://southpeak.github.io/2015/02/07/sourcecode-sdwebimage/)
