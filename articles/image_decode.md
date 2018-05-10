@@ -13,7 +13,7 @@ imageNamed: 方法的特点在于可以缓存已经加载的图片；使用时�
 ### imageWithContentsOfFile
 
 > Creates and returns an image object by loading the image data from the file at the specified path.
-> 
+
 >This method does not cache the image object.
 
 由上面的文档我们可以知道该方法直接返回图片，不会缓存。而且其解码依然要等到第一次显示该图片的时候。
@@ -65,3 +65,4 @@ SDWebImage中使用以下策略：
 2. [篇1：SDWebImage源码看图片解码](https://www.jianshu.com/p/728f71b9fe28)
 3. [iOS 处理图片的一些小 Tip](https://blog.ibireme.com/2015/11/02/ios_image_tips/)
 4. [SDWebImage源码解析（三）——SDWebImage图片解码/压缩模块](https://www.jianshu.com/p/dfa47380fc05)
+5. [@Swift开发者大会——如何打造易扩展的高性能图片组件](https://zhuanlan.zhihu.com/p/26955368)
