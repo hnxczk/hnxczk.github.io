@@ -139,8 +139,10 @@ dispatch_queue_t concurrentGet = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORI
 这段代码中全部执行完成这个任务就会在任务1、2、3全部执行后调用。
 ## `dispatch_barrier_async`
 当多个线程同时更新资源的时候会造成数据竞争，这时候我们需要使用`dispatch_barrier_async`。
+
 比如我们经常会碰到的一个问题，atomic修饰的属性一定是安全的吗？
-答案是否定的，atomic只保证了针对这个属性的成员变量的读写的原子性，而在同一线程中多次获取属性时，每次获取的结果却未必相同，因为两次获取操作之间其他线程可能会写入新值。使用串行队列可以解决这个问题,将所有的读取写入操作都放到串行队列中，这样就能保证线程安全了。更好的更高性能的解决办法就是利用 `dispatch_barrier_async`
+
+答案是否定的，atomic 只保证了针对这个属性的成员变量的读写的原子性，而如果一个线程在连续多次读取某属性值的过程中有别的线程在同时改写该值，那么即便将属性声明为 atomic，也还是会读到不正确的属性值。使用串行队列可以解决这个问题,将所有的读取写入操作都放到串行队列中，这样就能保证线程安全了。更好的更高性能的解决办法就是利用 `dispatch_barrier_async`。
 
 ```
 _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -164,6 +166,7 @@ _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 ```
 
 当上面的执行时属性的读取操作并发执行，而写入操作必须单独执行。
+
 ![](./images/gcd_2.png)
 
 需要注意的是如果我们调用`dispatch_barrier_async`时提交到一个global queue，barrier blocks执行效果与`dispatch_async()`一致；只有将Barrier blocks提交到使用`DISPATCH_QUEUE_CONCURRENT`属性创建的并行queue时它才会表现的如同预期。
