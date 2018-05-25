@@ -26,7 +26,7 @@
 
 ## 工程化
 - [iOS 代码规范](./articles/iOS 代码规范.md)
-- [iOS 代码规范](./articles/iOS 代码审核.md)
+- [iOS 代码审核](./articles/iOS 代码审核.md)
 - [多环境配置](./articles/多环境配置.md)
 
 ## 优质博客
