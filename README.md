@@ -30,11 +30,14 @@
 - [多环境配置](./articles/configura.md)
 - [开发者账号相关](./articles/ios-app-on-line.md)
 
-
 ## 优质博客
 - [合集](./articles/blogs.md)
 
 ## 面试题
 - [面试题](./articles/interview.md)
+
+## 读书笔记
+### Head First 设计模式
+- [01-策略模式](./articles/reading-notes/head-first-design-pattern/01-strategy-pattern.md)
 
 
