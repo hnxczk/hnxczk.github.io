@@ -75,11 +75,6 @@ iOS App 的上线离不开苹果的开发者账号体系，下面先来介绍几
 ### 1. 代码检查
 1. api 检查
 
-	主要检查 NetApiConst.m 文件里面下面几个常量是否是生产环境
-	1. `developeState` 
-	2. `kRequestPrefix`
-	3. `kRequestPrefix_Html`
-	4. `kCDNSEnvironment`
 2. 第三方 SDK appkey 检查
 
 	检查 AppKey.h 文件下的 QQ、微信、 微博、极光推送的 key 的配置是否正确。
