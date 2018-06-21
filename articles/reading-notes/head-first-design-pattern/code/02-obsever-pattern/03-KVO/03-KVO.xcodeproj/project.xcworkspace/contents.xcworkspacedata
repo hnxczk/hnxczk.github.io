@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:01-Weather.xcodeproj">
+      location = "self:03-KVO.xcodeproj">
    </FileRef>
 </Workspace>

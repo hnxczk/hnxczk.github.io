@@ -74,3 +74,31 @@
 
 ### 3 多用组合，少用继承
 观察者模式利用组合奖许多的观察者组合进祖逖的容器中。这样一来对象之间就没有继承而是通过组合产生关系。
+
+## OC 中的观察者模式
+
+### NSNotification
+
+先看一个例子
+```
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(noticeAction) name:NOTIFICATION_NAME object:nil];
+}
+
+- (void)noticeAction
+{
+    NSLog(@"getNotice");
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_NAME object:nil userInfo:nil];
+}
+```
+
+在 iOS 中主题是由一个单例 `NSNotificationCenter` 来充当。 而一个观察者通过调用 `addObserver...` 方法来注册。与上面介绍的不同的是注的时候 OC 同时传入 selector 来告诉主题在通知观察者的时候的调用方法。这其实与通过协议的方式异曲同工。
+
+### KVO
+
