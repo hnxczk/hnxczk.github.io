@@ -102,3 +102,45 @@
 
 ### KVO
 
+```
+@interface ViewController ()
+
+@property (nonatomic, assign) NSInteger count;
+
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    [self addObserver:self forKeyPath:@"count" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+    NSLog(@"%@", change);
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    self.count = 10;
+}
+
+@end
+```
+
+```
+2018-06-21 22:21:45.894083+0800 03-KVO[7403:124006] {
+    kind = 1;
+    new = 10;
+    old = 0;
+}
+```
+
+对于上面 KVO 的例子来说，self 即是主题也是观察者（当然很多情况下都不是这样，偷懒ing...），而 `observeValueForKeyPath...` 这个方法从当了协议的角色。
+
+### 更多 OC 中二者的具体用法可以看南峰子大神的博客
+
+1. [Foundation: NSKeyValueObserving(KVO)](http://southpeak.github.io/2015/04/23/cocoa-foundation-nskeyvalueobserving/)
+2. [Foundation: NSNotificationCenter](http://southpeak.github.io/2015/03/20/cocoa-foundation-nsnotificationcenter/)
