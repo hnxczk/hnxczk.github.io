@@ -27,7 +27,7 @@
 ## 具体实现
 ![](./images/03-decorate-pattern-4.png)
 
-具体的实现及说明可以查看[代码](./code/03-decorrate-pattern)
+具体的实现及说明可以查看[代码](./code/03-decorrate-pattern/01-Beverage)
 
 需要说明以下几点：
 
@@ -61,3 +61,11 @@ NSLog(@"%@ $%.2f", descript, cost);
 ```
 2018-06-23 19:21:38.455855+0800 01-Beverage[15712:538948] Dark Rose Coffee, Mocha, Soy, Whip $1.44
 ```
+
+## 添加大杯中杯小杯
+
+具体的实现及说明可以查看[代码](./code/03-decorrate-pattern/02-Beverage)
+
+我在实现的过程中让添加各种配料的价格进行了统一，没有做根据配料和容量的大小做区分（懒...），这点需要注意下。
+
+
