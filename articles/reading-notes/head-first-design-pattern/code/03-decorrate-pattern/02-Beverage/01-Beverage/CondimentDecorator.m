@@ -22,21 +22,4 @@
     return [super getDescript];
 }
 
-- (CGFloat)cost
-{
-    CGFloat cost = 0;
-    switch (self.size) {
-        case BeverageSizeTall:
-            cost += .10;
-            break;
-        case BeverageSizeGrande:
-            cost += .15;
-            break;
-        case BeverageSizeVenti:
-            cost += .20;
-            break;
-    }
-    return cost;
-}
-
 @end

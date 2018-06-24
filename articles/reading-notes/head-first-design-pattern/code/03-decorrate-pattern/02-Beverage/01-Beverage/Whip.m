@@ -25,7 +25,7 @@
 
 - (CGFloat)cost
 {
-    return .10 + [super cost] + [self.beverage cost];
+    return .10 + [self.beverage cost];
 }
 
 @end

@@ -25,7 +25,19 @@
 
 - (CGFloat)cost
 {
-    return .15 + [super cost] + [self.beverage cost];
+    CGFloat cost = [self.beverage cost];
+    switch (self.size) {
+        case BeverageSizeTall:
+            cost += .10;
+            break;
+        case BeverageSizeGrande:
+            cost += .15;
+            break;
+        case BeverageSizeVenti:
+            cost += .20;
+            break;
+    }
+    return cost;
 }
 
 @end
