@@ -287,3 +287,8 @@ Pizza *pizza = [SimplePizzaFactory createPizzaByType:@"cheese"];
 
 工厂方法其实就是潜伏在抽象工厂里面。因为抽象工厂的任务就是定义一个负责创建一组产品的接口。这个接口内的每个方法都是负责创建一个具体的产品。同时我们在实现抽象工厂的子类中提供具体的做法。因此在抽象工厂里面利用工厂方法是很自然的。
 
+## 工厂方法与抽象工厂
+
+![](./images/04-factory-pattern-8.png)
+
+![](./images/04-factory-pattern-9.png)

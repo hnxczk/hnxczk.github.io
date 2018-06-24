@@ -7,18 +7,20 @@
 //
 
 #import "ChicagoPizzaStore.h"
-#import "ChicagoCheesePizza.h"
-#import "ChicagoVeggicePizza.h"
+#import "ClamPizza.h"
+#import "CheesePizza.h"
+#import "NYPizzaIngredientFactory.h"
 
 @implementation ChicagoPizzaStore
 
 - (Pizza *)createPizzaByType:(NSString *)type
 {
+    NYPizzaIngredientFactory *ingreditenFactory = [[NYPizzaIngredientFactory alloc] init];
     Pizza *pizza = nil;
     if ([type isEqualToString:@"cheese"]) {
-        pizza = [[ChicagoCheesePizza alloc] init];
-    } else if ([type isEqualToString:@"veggice"]) {
-        pizza = [[ChicagoVeggicePizza alloc] init];
+        pizza = [[CheesePizza alloc] initWithIngredientFactory:ingreditenFactory];
+    } else if ([type isEqualToString:@"clam"]) {
+        pizza = [[ClamPizza alloc] initWithIngredientFactory:ingreditenFactory];
     }
     
     return pizza;
