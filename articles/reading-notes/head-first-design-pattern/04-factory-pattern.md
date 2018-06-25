@@ -1,8 +1,8 @@
 # 工厂模式
 
-## 提出问题（披萨店的问题）
+## 披萨店的问题
 
-当披萨店生产不同的披萨的时候需要根据类型来进行生产，因此下面的袋面就自然而然的出现了。
+当披萨店生产不同的披萨的时候需要根据类型来进行生产，因此下面的代码就自然而然的出现了。
 ```
 Pizza* orderPizzaByType(NSString *type)
 {
@@ -56,7 +56,7 @@ Pizza *pizza = [SimplePizzaFactory createPizzaByType:@"cheese"];
 [pizza cut];
 [pizza box];
 ```
-如上图，通过 SimplePizzaFactory 类的类方法来创建 Pizza。这样就把生产 Pizza 的方法封装了起来，其他地方只需要这个方法就能创建。修改的时候也只用修改者一处。
+通过 SimplePizzaFactory 类的类方法来创建 Pizza。这样就把生产 Pizza 的方法封装了起来，其他地方只需要这个方法就能创建。修改的时候也只用修改者一处。
 
 缺点：无法通过继承来改变创建方法的行为。
 
