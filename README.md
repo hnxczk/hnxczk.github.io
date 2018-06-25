@@ -41,4 +41,5 @@
 - [01-策略模式](./articles/reading-notes/head-first-design-pattern/01-strategy-pattern.md)
 - [02-观察者模式](./articles/reading-notes/head-first-design-pattern/02-obsever-pattern.md)
 - [03-装饰者模式](./articles/reading-notes/head-first-design-pattern/03-decorrate-pattern.md)
+- [04-工厂模式](./articles/reading-notes/head-first-design-pattern/04-factory-pattern.md)
 
