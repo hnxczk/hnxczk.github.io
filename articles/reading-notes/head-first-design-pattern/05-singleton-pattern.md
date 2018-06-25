@@ -98,7 +98,7 @@ class ChocolateBoiler {
 ![](./images/05-singleton-pattern-01.png)
 
 ## 处理方法
-其他语言中需要进行加锁，比如 java 中的 synchronized 与 OC 中的 dispatch_once 都是这种处理方式。
+其他语言中需要进行加锁，比如 java 中的 synchronized 与 OC 中的 @synchronized、 dispatch_once 都是这种处理方式。
 
 ```
 + (id)sharedInstance {  
@@ -111,7 +111,7 @@ class ChocolateBoiler {
     return sharedInstance;  
 } 
 ```
-为防止频繁加锁的性能损耗可以使用下面的这种方式
+为减少频繁加锁的性能损耗可以使用下面的这种方式
 ```
 + (id)sharedInstance {  
     static testClass *sharedInstance = nil;  
