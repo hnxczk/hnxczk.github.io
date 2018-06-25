@@ -136,17 +136,17 @@ class ChocolateBoiler {
     return sharedInstance;  
 }  
 ```
-dispatch_once为什么能做到既解决同步多线程问题又不影响性能呢？
-下面我们来看看dispatch_once的原理：
-1. dispatch_once主要是根据onceToken的值来决定怎么去执行代码。
-2. 当onceToken= 0时，线程执行dispatch_once的block中代码
-3. 当onceToken= -1时，线程跳过dispatch_once的block中代码不执行
-4. 当onceToken为其他值时，线程被线程被阻塞，等待onceToken值改变
-5. 当线程首先调用shareInstance，某一线程要执行block中的代码时，首先需要改变onceToken的值，再去执行block中的代码。这里onceToken的值变为了140734605830464。
-6. 这样当其他线程再获取onceToken的值时，值已经变为140734605830464。其他线程被阻塞。
-7. 当block线程执行完block之后。onceToken变为-1。其他线程不再阻塞，跳过block。
-8. 下次再调用shareInstance时，block已经为-1。直接跳过block。
-9. 这样dispatch_once在首次调用时同步阻塞线程，生成单例之后，不再阻塞线程。
+dispatch_once 为什么能做到既解决同步多线程问题又不影响性能呢？
+下面我们来看看 dispatch_once 的原理：
+1. dispatch_once 主要是根据 onceToken 的值来决定怎么去执行代码。
+2. 当 onceToken = 0时，线程执行 dispatch_once 的 block 中代码
+3. 当 onceToken = -1时，线程跳过 dispatch_once 的 block 中代码不执行
+4. 当 onceToken 为其他值时，线程被线程被阻塞，等待 onceToken 值改变
+5. 当线程首先调用 shareInstance，某一线程要执行 block 中的代码时，首先需要改变 onceToken 的值，再去执行 block 中的代码。这里 onceToken 的值变为了 140734605830464。
+6. 这样当其他线程再获取 onceToken 的值时，值已经变为 140734605830464。其他线程被阻塞。
+7. 当block线程执行完 block 之后。onceToken 变为 -1。其他线程不再阻塞，跳过 block。
+8. 下次再调用 shareInstance 时，block 已经为 -1。直接跳过 block。
+9. 这样 dispatch_once 在首次调用时同步阻塞线程，生成单例之后，不再阻塞线程。
 
 [出处见这里](https://www.jianshu.com/p/160d77888443)
 
