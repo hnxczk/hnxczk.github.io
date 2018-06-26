@@ -4,7 +4,7 @@
 
 当披萨店生产不同的披萨的时候需要根据类型来进行生产，因此下面的代码就自然而然的出现了。
 ```
-Pizza* orderPizzaByType(NSString *type)
+-  (Pizza*)orderPizzaByType:(NSString *)type
 {
     Pizza *pizza;
     if ([type isEqualToString:@"cheese"]) {
