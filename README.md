@@ -42,4 +42,4 @@
 - [02-观察者模式](./articles/reading-notes/head-first-design-pattern/02-obsever-pattern.md)
 - [03-装饰者模式](./articles/reading-notes/head-first-design-pattern/03-decorrate-pattern.md)
 - [04-工厂模式](./articles/reading-notes/head-first-design-pattern/04-factory-pattern.md)
-
+- [05-工厂模式](./articles/reading-notes/head-first-design-pattern/05-singleton-pattern.md)
