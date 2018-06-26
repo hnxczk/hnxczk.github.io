@@ -150,7 +150,7 @@ dispatch_once 为什么能做到既解决同步多线程问题又不影响性能
 
 [出处见这里](https://www.jianshu.com/p/160d77888443)
 
-而由于 swift 中已经使用 dispatch_once behind the scenes 来执行全局变量和静态属性的线程安全延迟初始化。因此不需要进行加锁。
+而由于 swift 中已经使用 dispatch_once behind the scenes 来执行全局变量和静态属性的线程安全延迟初始化。因此使用静态常量就可以保证线程安全。
 
 ```
     private static let instance = ChocolateBoiler2()
@@ -164,4 +164,3 @@ dispatch_once 为什么能做到既解决同步多线程问题又不影响性能
         return instance
     }
 ```
-通过上面的方法就能保证线程安全。
