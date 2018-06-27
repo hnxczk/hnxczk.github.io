@@ -29,6 +29,7 @@
 - [iOS 代码审核](./articles/ios-code-review.md)
 - [多环境配置](./articles/configura.md)
 - [开发者账号相关](./articles/ios-app-on-line.md)
+- [UML类图](./articles/uml.md)
 
 ## 优质博客
 - [合集](./articles/blogs.md)
