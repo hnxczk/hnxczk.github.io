@@ -2,7 +2,7 @@
 
 UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简单介绍其中类图的各个类之间的线条和箭头的含义。通过学习以后看一些设计模式相关的结构图就不会有什么问题了。
 
-首先推荐个在线编辑 UML 的网站 [www.processon.com](https://www.processon.com)。用了一下个人感觉比一些软件例如 StarUML 这些还是好上手一些的。
+首先推荐个在线编辑 UML 的网站 [www.processon.com](https://www.processon.com)。用了一下个人感觉相较一些软件例如 StarUML 而言这个网站比较好上手一些。功能样式都还不错。
 ## 类图中的元素
 ### 类和接口
 ![](./images/uml-1.png)
