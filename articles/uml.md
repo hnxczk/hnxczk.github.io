@@ -1,6 +1,8 @@
 # UML 类图
 
-UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简单介绍其中类图的各个类之间的线条和箭头的含义。通过学习这些就能应付日常的工作和交流。并且知道了这些以后看一些设计模式相关的结构图就不会有什么问题了。
+UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简单介绍其中类图的各个类之间的线条和箭头的含义。通过学习以后看一些设计模式相关的结构图就不会有什么问题了。
+
+首先推荐个在线编辑 UML 的网站 [www.processon.com](https://www.processon.com)。用了一下个人感觉相较一些软件例如 StarUML 而言这个网站比较好上手一些。功能样式都还不错。
 ## 类图中的元素
 ### 类和接口
 ![](./images/uml-1.png)
@@ -83,7 +85,7 @@ UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简
 
 ![](./images/uml-10.png)
 
-- 车的类图结构为<<abstract>>，表示车是一个抽象类；
+- 车的类图结构为`<<abstract>>`，表示车是一个抽象类；
 - 它有两个继承类：小汽车和自行车；它们之间的关系为实现关系，使用带空心箭头的虚线表示；
 - 小汽车为与SUV之间也是继承关系，它们之间的关系为泛化关系，使用带空心箭头的实线表示；
 - 小汽车与发动机之间是组合关系，使用带实心箭头的实线表示；
@@ -96,5 +98,4 @@ UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简
 - [看懂UML类图和时序图](http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html)
 - [w3cschool UML教程](https://www.w3cschool.cn/uml_tutorial/uml_tutorial-pohy28t3.html)
 - [轻松理解UML用例图时序图类图的教程](http://www.wistbean.com/blog/2017/10/03/uml-diagrams/)
-- [在线编辑 UML 的网站 www.processon.com](https://www.processon.com)
 
