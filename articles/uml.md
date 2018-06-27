@@ -25,6 +25,7 @@ UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简
 继承非抽象类属于这个关系。比如 SUV 继承自 汽车。
 
 用一条带空心箭头的直线来表示。
+
 ![](./images/uml-4.png)
 #### 实现关系(realize)
 > 类之间的语义关系，其中的一个类指定了由另一个类保证执行的契约。
@@ -32,6 +33,7 @@ UML 是统一建模语言（Unified Modeling Language）的缩写。这里只简
 继承抽象类或者实现接口都属于这种关系。
 
 用一条带空心箭头的虚线表示。
+
 ![](./images/uml-5.png)
 
 #### 聚合关系(aggregation)
