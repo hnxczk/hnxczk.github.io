@@ -8,15 +8,40 @@
 
 import Foundation
 
-var remote = SimpleRemoteControl()
-var light = Light()
-var lightOn = LightOnCommand(light: light)
+var livingRoomLight = Light(name: "Living Room")
+var kitchenLight = Light(name: "Kitchen Room")
+var garageDoor = GarageDoor(name: "GarageDoor")
+var stereo = Stereo(name: "Living Room")
 
-remote.setCommand(commad: lightOn)
-remote.bottomWasPressed()
+var livingEoomLightOn = LightOnCommand(light: livingRoomLight)
+var livingEoomLightOff = LightOffCommand(light: livingRoomLight)
 
-var garage = Garage()
-var garageDoorOpen = GarageDoorOpenCommand(garage: garage)
+var kitchenLightOn = LightOnCommand(light: kitchenLight)
+var kitchenLightOff = LightOffCommand(light: kitchenLight)
 
-remote.setCommand(commad: garageDoorOpen)
-remote.bottomWasPressed()
+var garageDoorUp = GarageDoorUpCommand(garageDoor: garageDoor)
+var garageDoorDown = GarageDoorDownCommand(garageDoor: garageDoor)
+
+var stereoOnWithCD = StereoOnWithCDCommand(stereo: stereo)
+var stertoOff = StereOffCommand(stereo: stereo)
+
+var remoteControl = RemoteControl()
+
+remoteControl.setCommand(slot: 0, onCommand: livingEoomLightOn, offCommand: livingEoomLightOff)
+remoteControl.setCommand(slot: 1, onCommand: kitchenLightOn, offCommand: kitchenLightOff)
+remoteControl.setCommand(slot: 2, onCommand: garageDoorUp, offCommand: garageDoorDown)
+remoteControl.setCommand(slot: 3, onCommand: stereoOnWithCD, offCommand: stertoOff)
+
+remoteControl.onButtonWasPressed(solt: 0)
+remoteControl.offButtonWasPressed(solt: 0)
+remoteControl.onButtonWasPressed(solt: 1)
+remoteControl.offButtonWasPressed(solt: 1)
+remoteControl.onButtonWasPressed(solt: 2)
+remoteControl.offButtonWasPressed(solt: 2)
+remoteControl.onButtonWasPressed(solt: 3)
+remoteControl.offButtonWasPressed(solt: 3)
+
+
+
+
+

@@ -18,3 +18,10 @@
 
 ![](./images/06-command-pattern-3.png)
 
+## 实现遥控器
+具体代码见[这里](./code/06-command-pattern/02-Command)
+
+简单来说就是在 RemoteControl 类中通过数组来作为各种命令的容器，然后在执行命令的时候通过方法 `    func setCommand(slot:Int, onCommand: Command, offCommand: Command) `来设置。
+
+![](./images/06-command-pattern-4.png)
+

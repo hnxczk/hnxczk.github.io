@@ -11,6 +11,7 @@ import Foundation
 class RemoteControl {
     var onCommands: [Command]
     var offCommands: [Command]
+    var undoCommand: Command
     
     init() {
         self.onCommands = [Command]()
@@ -21,6 +22,7 @@ class RemoteControl {
             self.onCommands.append(noCommand)
             self.offCommands.append(noCommand)
         }
+        self.undoCommand = NoCommand()
     }
     
     func setCommand(slot:Int, onCommand: Command, offCommand: Command) {
@@ -30,10 +32,16 @@ class RemoteControl {
     
     func onButtonWasPressed(solt: Int) {
         self.onCommands[solt].execute()
+        undoCommand = onCommands[solt]
     }
     
     func offButtonWasPressed(solt: Int) {
         self.offCommands[solt].execute()
+        undoCommand = offCommands[solt]
+    }
+    
+    func undoButtonWasPressed() {
+        undoCommand.undo()
     }
     
     func toString() {

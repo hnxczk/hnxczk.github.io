@@ -8,14 +8,14 @@
 
 import Foundation
 
-class Garage {
+class GarageDoor: Appliance {
     
     func up() {
-        
+        print("\(name) door up!")
     }
     
     func down() {
-        
+        print("\(name) door down!")
     }
     
     func stop() {
