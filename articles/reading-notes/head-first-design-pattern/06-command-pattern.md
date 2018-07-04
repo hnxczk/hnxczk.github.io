@@ -25,3 +25,51 @@
 
 ![](./images/06-command-pattern-4.png)
 
+## 使用状态撤销
+
+在 CeilingFanHighCommand 的 undo 方法中添加以下代码
+
+```
+    var prevSpeed: SpeedType = .Off
+```
+使用 prevSpeed 来记录上次的 speed
+
+```
+    func undo() {
+        switch prevSpeed {
+        case .High:
+            ceilingFan.high()
+        case .Medium:
+            ceilingFan.medium()
+        case .Low:
+            ceilingFan.low()
+        case .Off:
+            ceilingFan.off()
+        }
+    }
+```
+然后在 undo 方法中通过上次记录的 prevSpeed 来还原上次的操作。
+
+```
+var remoteControl = RemoteControl()
+
+var ceilingFan = CeilingFan(name: "Living Room")
+
+var ceilingFanHighCommand = CeilingFanHighCommand(ceilingFan: ceilingFan)
+var ceilingFanMdeiomCommand = CeilingFanMediumCommand(ceilingFan: ceilingFan)
+var ceilingFanOffCommand = CeilingFanOffCommand(ceilingFan: ceilingFan)
+
+remoteControl.setCommand(slot: 0, onCommand: ceilingFanHighCommand, offCommand: ceilingFanOffCommand)
+remoteControl.setCommand(slot: 1, onCommand: ceilingFanMdeiomCommand, offCommand: ceilingFanOffCommand)
+
+// 点击第一行的 on 开关，remoteControl 的成员变量 undoCommand 会记录下 ceilingFanHighCommand，ceilingFanHighCommand 的 prevSpeed 会先记录下之前的 speed: off,然后调用 ceilingFan 的 high
+remoteControl.onButtonWasPressed(solt: 0)
+// 点击第一行的 off 开关，remoteControl 的成员变量 undoCommand 会记录下 ceilingFanOffCommand，ceilingFanOffCommand 的 prevSpeed 会记录下之前的speed： high， 然后调用 ceilingFan 的 off
+remoteControl.offButtonWasPressed(solt: 0)
+// 点击撤销时remoteControl 的成员变量 undoCommand 是 ceilingFanOffCommand，因此 调用 ceilingFanOffCommand 的 undo 根据之前记录下的 prevSpeed：high， 然后执行 high
+remoteControl.undoButtonWasPressed()
+
+remoteControl.onButtonWasPressed(solt: 1)
+remoteControl.undoButtonWasPressed()
+```
+
