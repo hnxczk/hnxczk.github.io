@@ -46,3 +46,4 @@
 - [04-工厂模式](./articles/reading-notes/head-first-design-pattern/04-factory-pattern.md)
 - [05-单例模式](./articles/reading-notes/head-first-design-pattern/05-singleton-pattern.md)
 - [06-命令模式](./articles/reading-notes/head-first-design-pattern/06-command-pattern.md)
+- [07-适配器模式与外观模式](./articles/reading-notes/head-first-design-pattern/06-command-pattern.md)
