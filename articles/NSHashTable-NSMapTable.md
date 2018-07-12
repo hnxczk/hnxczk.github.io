@@ -39,7 +39,7 @@
 > Use this version when a strong reference between controller and observed object would create a retain cycle.
  When not retaining observed objects, special care must be taken to remove observation info prior to deallocation of the observed object.
 
- 这是对这个的注释。大概意思就是我们上面遇到的那种循环引用的情况。它不会持有被观察的对象。
+ 这是对这个的注释。大概意思就是当我们上面遇到的那种循环引用的情况下可以使用 KVOControllerNonRetaining。它不会持有被观察的对象。
 
  这个具体的就是通过 NSMapTable 来实现的。
 
@@ -82,3 +82,7 @@
 
 在 上面 FBKVOController 的里面正是应用了这一特性。
 
+## 参考
+- [如何优雅地使用 KVO](https://draveness.me/kvocontroller)
+- [简析KVOController实现原理](https://www.jianshu.com/p/22c5024cc3c0)
+- [NSHashTable和NSMapTable用法](https://www.jianshu.com/p/de71385930ba)
