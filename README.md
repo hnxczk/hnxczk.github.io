@@ -8,6 +8,7 @@
 - [iOS中的锁](./articles/locks.md)
 - [事件响应](./articles/responder.md)
 - [图片编解码](./articles/image_decode.md)
+- [NSHashTable 和 NSMapTable](./articles/NSHashTable-NSMapTable.md)
 
 ## 源码解析
 - [SDWebImage](./articles/sd.md)
