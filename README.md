@@ -39,11 +39,4 @@
 - [面试题](./articles/interview.md)
 
 ## 读书笔记
-### Head First 设计模式
-- [01-策略模式](./articles/reading-notes/head-first-design-pattern/01-strategy-pattern.md)
-- [02-观察者模式](./articles/reading-notes/head-first-design-pattern/02-obsever-pattern.md)
-- [03-装饰者模式](./articles/reading-notes/head-first-design-pattern/03-decorrate-pattern.md)
-- [04-工厂模式](./articles/reading-notes/head-first-design-pattern/04-factory-pattern.md)
-- [05-单例模式](./articles/reading-notes/head-first-design-pattern/05-singleton-pattern.md)
-- [06-命令模式](./articles/reading-notes/head-first-design-pattern/06-command-pattern.md)
-- [07-适配器模式与外观模式](./articles/reading-notes/head-first-design-pattern/06-command-pattern.md)
+- [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
