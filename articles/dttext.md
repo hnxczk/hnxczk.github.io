@@ -7,11 +7,11 @@
 这里先记录下出现问题的原因。
 
 ### 1. 图片上额外的 “·” 符号
-经过查找代码发现这个 “·” 是个占位符，用来对图片的位置进行定位的。去掉之后图片的显示位置就混乱了。
+经过查找代码发现这个 “·” 是个占位符，用来对图片的位置进行定位的。去掉之后图片的显示位置就混乱了。
 
-后来了解到 RCLable 底层也是通过 CoreText 来实现的，于是查询了一些资料.
+后来了解到 RCLable 底层也是通过 CoreText 来实现的，于是查询了一些资料.
 
-在 CoreText 里面抽象出了以下这些类，将一段文字才分为基本单位为 CTRun 的一组类，然后通过计算他们的位置来实现排版。
+在 CoreText 里面抽象出了以下这些类，将一段文字才分为基本单位为 CTRun 的一组类，然后通过计算他们的位置来实现排版。
 
 ![](./images/dttext-2.png)
 
@@ -19,7 +19,7 @@
 
 > CoreText 实际上并没有相应 API 直接将一个图片转换为 CTRun 并进行绘制，它所能做的只是为图片预留相应的空白区域，而真正的绘制则是交由 CoreGraphics 完成。在 CoreText 中提供了 CTRunDelegate 这么个 Core Foundation 类，顾名思义它可以对 CTRun 进行拓展：AttributedString 某个段设置 kCTRunDelegateAttributeName 属性之后，CoreText 使用它生成 CTRun 是通过当前 Delegate 的回调来获取自己的 ascent，descent 和 width，而不是根据字体信息。这样就给我们留下了可操作的空间：用一个**空白字符**作为图片的占位符，设好 Delegate，占好位置，然后用 CoreGraphics 进行图片的绘制。
 
-从上面可以看出来这个问题的原因就是没有使用空白字符而是用了 “·” 做占位符导致的问题。于是这个问题就可以通过下面这个空白字符来处理了。
+从上面可以看出来这个问题的原因就是没有使用空白字符而是用了 “·” 做占位符导致的问题。于是这个问题就可以通过下面这个空白字符来处理了。
 
 ```
 unichar objectReplacementChar = 0xFFFC;
@@ -30,19 +30,19 @@ unichar objectReplacementChar = 0xFFFC;
 - 部分图片无法展示是因为在计算排版的时候当图片正好位于一行结尾的时候折行计算错误导致图片位置设置错误，然后就无法显示了。
 
 ## 解决方案
-由于上面的问题涉及到排版的问题，改起来也比较麻烦（主要是代码太难看了 😭 ）。因此就决定换一个实现方式。
+由于上面的问题涉及到排版的问题，改起来也比较麻烦（主要是代码太难看了 😭 ）。因此就决定换一个实现方式。
 
-关于富文本显示的可以用以下几种实现方式。
+关于富文本显示的可以用以下几种实现方式。
 ### 0. WebView
-既然服务器返回的是 HTML ，直接的想法就是用 WebView。但是对于做题这种需求来说肯定不能一道题一个 WebView。一来部分功能比如选项的控制和题目选项的位置大小不能用 WebView，二来就是性能的问题。pass！
+既然服务器返回的是 HTML ，直接的想法就是用 WebView。但是对于做题这种需求来说肯定不能一道题一个 WebView。一来部分功能比如选项的控制和题目选项的位置大小不能用 WebView，二来就是性能的问题。pass！
 ### 1. CoreText 
-接着想到的就是直接通过最底层的 CoreText 来说实现相关的功能。但是这个学习成本还是不低的。而且由于我们之前的处理方式是服务器返回 HTML 标签的方式，直接使用 CoreText 还需要处理 HTML 的解析以及图片下载缓存相关的功能。这个周期会更长。后期有时间再研究。pass！
+接着想到的就是直接通过最底层的 CoreText 来说实现相关的功能。但是这个学习成本还是不低的。而且由于我们之前的处理方式是服务器返回 HTML 标签的方式，直接使用 CoreText 还需要处理 HTML 的解析以及图片下载缓存相关的功能。这个周期会更长。后期有时间再研究。pass！
 
 ### 2. TextKit
 相对于 CoreText 来说 TextKit 更轻量一点，使用起来也更方便，但是跟 CoreText 一样的缺点就是依然需要处理标签。[资料](https://www.objccn.io/issue-5-1/) pass！
 
 ### 3. YYText
-相对于上面苹果原生的文字处理框架，YYText 提供了更好的处理文字的方式，更难得的是提供了异步绘制的功能，能极高的提高性能。但是依然有上面存在的问题。 pass！
+相对于上面苹果原生的文字处理框架，YYText 提供了更好的处理文字的方式，更难得的是提供了异步绘制的功能，能极高的提高性能。但是依然有上面存在的问题。 pass！
 
 ### 4. DTCoreText
 解析 HTML 功能 ？ 有 ！！
@@ -60,7 +60,7 @@ DTCoreText 是个开源的 iOS 富文本组件，它可以解析 HTML 与 CSS �
 2. 渲染—用 CoreText 把 NSAttributeString 内容渲染出来，再加上图片等元素
     这一步就不具体展开了具体可以看看[这里](http://blog.cnbang.net/tech/2729/)
 
-需要注意的是第一步的解析过程。由于我们之前的需求中，服务器通过把 img 标签的 src 属性的图片地址后面加上了图片的大小。类似 `http://xxx/xxx/xxx.png?174|83`这样。直接按照正常的 HTML 来解析是解析不出来的。因此需要在解析的时候修改 img 标签的属性。
+需要注意的是第一步的解析过程。由于我们之前的需求中，服务器通过把 img 标签的 src 属性的图片地址后面加上了图片的大小。类似 `http://xxx/xxx/xxx.png?174|83`这样。直接按照正常的 HTML 来解析是解析不出来的。因此需要在解析的时候修改 img 标签的属性。
 
 通过 DTCoreText 的 demo 我找到了生成 NSAttributedString 的方法。
 
@@ -71,9 +71,9 @@ NSAttributedString *string = [[NSAttributedString alloc] initWithHTMLData:data o
 在 options 里面可以传入一些参数来控制生成的结果。用到的比较重要的有下面这几个。
 
 - DTWillFlushBlockCallBack
-    这个是在将要解析 HTML 元素的时候的回调，能获得各个元素的描述和修改相关元素的属性。
+    这个是在将要解析 HTML 元素的时候的回调，能获得各个元素的描述和修改相关元素的属性。
 - DTMaxImageSize
-    这个是图片的最大尺寸。
+    这个是图片的最大尺寸。
 
 其他的一些属性比如字体，链接的高亮颜色，文字行间距等都可以在这里设置。
 
@@ -134,7 +134,7 @@ NSAttributedString *string = [[NSAttributedString alloc] initWithHTMLData:data o
 ```
 
 上面的代码需要注意的就是
-1. `[dict setObject:@"middle" forKey:@"vertical-align"];` 通过这个代码可以设置 text 和 image 的对齐方式。参考[这里](https://github.com/Cocoanetics/DTCoreText/issues/552#event-62201271)。如果是直接拼接的 HTML 标签需要设置 img 标签的 `style="vertical-align:middle;"`。 但是在这里需要按照上面的代码进行设置才能生效。
+1. `[dict setObject:@"middle" forKey:@"vertical-align"];` 通过这个代码可以设置 text 和 image 的对齐方式。参考[这里](https://github.com/Cocoanetics/DTCoreText/issues/552#event-62201271)。如果是直接拼接的 HTML 标签需要设置 img 标签的 `style="vertical-align:middle;"`。 但是在这里需要按照上面的代码进行设置才能生效。
 2. 设置完 element 的 attributes 属性后还需要重置 textAttachment。如下
 
 ```
