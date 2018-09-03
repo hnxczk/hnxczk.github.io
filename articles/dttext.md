@@ -9,7 +9,14 @@
 ### 1. 图片上额外的 “·” 符号
 经过查找代码发现这个 “·” 是个占位符，用来对图片的位置进行定位的。去掉之后图片的显示位置就混乱了。
 
-后来了解到 RCLable 底层也是通过 CoreText 来实现的，于是查询了一些资料了解到
+后来了解到 RCLable 底层也是通过 CoreText 来实现的，于是查询了一些资料.
+
+在 CoreText 里面抽象出了以下这些类，将一段文字才分为基本单位为 CTRun 的一组类，然后通过计算他们的位置来实现排版。
+
+![](./images/dttext-2.png)
+
+而对于图片来说
+
 > CoreText 实际上并没有相应 API 直接将一个图片转换为 CTRun 并进行绘制，它所能做的只是为图片预留相应的空白区域，而真正的绘制则是交由 CoreGraphics 完成。在 CoreText 中提供了 CTRunDelegate 这么个 Core Foundation 类，顾名思义它可以对 CTRun 进行拓展：AttributedString 某个段设置 kCTRunDelegateAttributeName 属性之后，CoreText 使用它生成 CTRun 是通过当前 Delegate 的回调来获取自己的 ascent，descent 和 width，而不是根据字体信息。这样就给我们留下了可操作的空间：用一个**空白字符**作为图片的占位符，设好 Delegate，占好位置，然后用 CoreGraphics 进行图片的绘制。
 
 从上面可以看出来这个问题的原因就是没有使用空白字符而是用了 “·” 做占位符导致的问题。于是这个问题就可以通过下面这个空白字符来处理了。
@@ -135,6 +142,16 @@ element.attributes = dict;
 element.textAttachment = [[DTImageTextAttachment alloc] initWithElement:element options:nil];
 [element applyStyleDictionary:dict];
 ```
+
+## 对比
+修改前
+
+![](./images/dttext-3.jpeg)
+
+修改后
+
+![](./images/dttext-4.jpeg)
+
 
 ## 参考
 1. [DTCoreText 的 issue](https://github.com/Cocoanetics/DTCoreText/issues/552#event-62201271)
