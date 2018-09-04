@@ -27,7 +27,7 @@ iOS 3.3.7 和 3.3.8 版本中做题相关功能
 
 2. 继续设计模式的学习
 
-    ![策略模式](../reading-notes/head-first-design-pattern/01-strategy-pattern.md)
+    [策略模式](../reading-notes/head-first-design-pattern/01-strategy-pattern.md)
 
     策略模式(Strategy Pattern)：定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化。
     
