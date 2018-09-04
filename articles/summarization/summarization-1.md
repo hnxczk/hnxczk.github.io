@@ -11,6 +11,7 @@
     在美题一期的项目中遗留了几个问题。比如图片上显示“`”,部分图片无法加载等。
     
     在二期中对其进行了解决和优化。具体看[这里](../dttext.md)。
+    
 ## 创新
 
 封装新的弹框控件 HKAlertView。
@@ -27,4 +28,6 @@
     ![策略模式](../reading-notes/head-first-design-pattern/01-strategy-pattern.md)
 
     策略模式(Strategy Pattern)：定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化。
+    
+    
 
