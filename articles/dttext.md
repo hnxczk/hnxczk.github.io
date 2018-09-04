@@ -150,7 +150,7 @@ element.textAttachment = [[DTImageTextAttachment alloc] initWithElement:element 
 
 修改后
 
-![](./images/dttext-4.jpeg)
+![](./images/dttext-4.png)
 
 
 ## 参考
