@@ -23,3 +23,9 @@ class FactoryB: AbstractFactory {
         return ControllerB()
     }
 }
+
+class FactoryC: AbstractFactory {
+    func creatController() -> UIViewController {
+        return ControllerC()
+    }
+}

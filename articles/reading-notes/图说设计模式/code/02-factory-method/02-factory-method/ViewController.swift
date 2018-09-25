@@ -26,6 +26,11 @@ class ViewController: UIViewController {
         self.pushWithFactory()
     }
     
+    @IBAction func middleClick() {
+        self.factory = FactoryC()
+        self.pushWithFactory()
+    }
+    
     func pushWithFactory() {
         let vc = self.factory?.creatController()
         if let vc = vc {
