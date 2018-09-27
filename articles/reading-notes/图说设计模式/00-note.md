@@ -95,11 +95,56 @@ extension UIButton {
 多个位于不同产品等级结构中属于不同类型的具体产品时需要使用抽象工厂模式.
 
 
-![](./iamges/AbatractFactory.jpg)
+![](./images/AbatractFactory.jpg)
 
-
+当一个产品族中的多个对象被设计成一起工作时，它能够保证客户端始终只使用同一个产品族中的对象。这对一些需要根据当前环境来决定其行为的软件系统来说，是一种非常实用的设计模式。
 
 ### 4. 建造者模式
+建造者模式主要用于复杂对象的创建。比如一个对象由多个对象组合而成，但是他们的赋值过程需要按照一定的顺序来进行。这时候就需要使用建造者模式了。
+
+![](./images/Builder.jpg)
+
+其中最总要的角色就是 Director 。 所有的建造过程都是由他进行控制的。
+
+当然在实际的使用中可以省略掉一些角色。
+- 省略抽象建造者角色：如果系统中只需要一个具体建造者的话，可以省略掉抽象建造者。
+- 省略指挥者角色：在具体建造者只有一个的情况下，如果抽象建造者角色已经被省略掉，那么还可以省略指挥者角色，让 Builder 角色扮演指挥者与建造者双重角色。
+
+在实际的使用中，我认为上面的角色都可以省略掉，由产品自己来提供创建方法。
+
+```
+- (instancetype)initWithTitle:(NSString *)title
+                 contentImage:(NSString *)contentImage
+                   customView:(UIView *)customView
+                      message:(NSString *)message
+            attributedMessage:(NSAttributedString *)attributedMessage
+                messageDetail:(NSString *)messageDetail
+      attributedMessageDetail:(NSAttributedString *)attributedMessageDetail
+            cancelButtonTitle:(NSString *)cancelButtonTitle
+            otherButtonTitles:(NSArray<NSString *> *)otherButtonTitles
+{
+    ...
+
+    if (title.length) {
+        self.title = title;
+        [self.centerBackView addSubview:self.titleLab];
+    }
+        
+    [self.centerBackView addSubview:self.contentScrollView];
+        
+    if (contentImage) {
+        self.contentImage = contentImage;
+        [self.contentScrollView addSubview:self.contentImageView];
+    }
+
+    ...
+}
+```
+比如上面这个方法是我之前封装的一个自定义弹框的控件。我提供了一个初始化方法，当然 title 和 contentImage 可能会传空，这时候这个方法就会判断传入的值来添加相应的视图。这个时候这个初始化方法就是一个指挥者的角色。
+
+与抽象工厂模式相比， 建造者模式返回一个组装好的完整产品 ，而 抽象工厂模式返回一系列相关的产品，这些产品位于不同的产品等级结构，构成了一个产品族。
+
 ### 5. 单例模式
+
 ## 结构型模式
 ## 行为型模式
