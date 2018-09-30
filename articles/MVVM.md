@@ -17,7 +17,91 @@
 
 这个例子中主要模拟了一个常见的业务场景。从服务器获取数据并展示，然后当用户点击的时候处理点击事件，并修改数据然后展示修改后的界面。
 
-由上面的 demo 中我们可以看出来 View 和 Model 层的责任较为单一，比较轻量。相应的 Controller 层的责任就比较复杂了。
+下面这是 Controller 里的部分代码。
+```
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [self.view addSubview:self.tableView];
+    [self requestModel];
+    [self.model addObserver:self forKeyPath:@"countArray" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:nil];
+}
+
+- (void)dealloc
+{
+    [self.model removeObserver:self forKeyPath:@"countArray"];
+}
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    self.tableView.frame = self.view.bounds;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"countArray"]) {
+        self.title = [NSString stringWithFormat:@"%ld", (long)self.model.totalCount];
+        [self.tableView reloadData];
+    }
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return self.model.countArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    TableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TableViewCell"];
+    NSNumber *count = self.model.countArray[indexPath.row];
+    [cell.countBtn setTitle:[NSString stringWithFormat:@"%@", count] forState:UIControlStateNormal];
+    __weak __typeof(self)weakSelf = self;
+    cell.addClickBlock = ^{
+        [weakSelf addActionAtIndex:indexPath.row];
+    };
+    return cell;
+}
+
+- (void)addActionAtIndex:(NSInteger)index
+{
+    NSNumber *count = self.model.countArray[index];
+    NSInteger countInt = [count integerValue];
+    NSMutableArray *countArray = [NSMutableArray arrayWithArray:self.model.countArray];
+    countArray[index] = [NSNumber numberWithInteger:(countInt + 1)];
+    self.model.countArray = countArray;
+}
+
+// 模拟网络请求
+- (void)requestModel
+{
+    Model *model = [[Model alloc] init];
+    NSMutableArray *array = [NSMutableArray array];
+    for (int i = 0; i < 10; i++) {
+        [array addObject:@(i)];
+        model.totalCount += i;
+    }
+    model.countArray = array;
+    
+    self.model = model;
+}
+
+- (UITableView *)tableView
+{
+    if (!_tableView) {
+        _tableView = [[UITableView alloc] init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        _tableView.rowHeight = 50;
+        [_tableView registerNib:[UINib nibWithNibName:@"TableViewCell" bundle:nil] forCellReuseIdentifier:@"TableViewCell"];
+    }
+    return _tableView;
+}
+```
+
+在 demo 中 Controller 持有 View 和 Model。View 的交互事件通过 Block 传递到 Controller，然后控制器处理完业务逻辑后修改 Model。同时 Controller 通过 KVO 监听 Model 的改变后刷新界面。
+
+通过这个结构可以看出来 View 和 Model 层的责任较为单一，比较轻量。相应的 Controller 层的责任就比较复杂了。
 
 例子中 Controller 的职责（包括但不仅限于）：
 
