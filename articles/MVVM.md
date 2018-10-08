@@ -226,7 +226,7 @@ ViewModel
 
 通过上面我们可以看出来 MVVM 可以看成是一个 MVC 的增强版，因此它可以完全兼容 MVC ，可以很好的介入到项目中。
 
-另外需要注意的是 MVVM 配合一个绑定机制效果最好（比如大名鼎鼎的 ReactiveCocoa）。但是并不是说只能用 ReactiveCocoa 或者 RXSwift 来进行绑定。 我们可以结合使用 KVO 来做数据的同步。就像我在 demo 中的用法。当然了系统提供的 KVO 使用起来泰国麻烦和危险，一般在项目中使用的都是 Facebook 开源的 FBKVOController 。当然也会有一些坑需要注意，可以参考我的[这篇](./NSHashTable-NSMapTable.md)文章.
+另外需要注意的是 MVVM 配合一个绑定机制效果最好（比如大名鼎鼎的 ReactiveCocoa）。但是并不是说只能用 ReactiveCocoa 或者 RXSwift 来进行绑定。 我们可以结合使用 KVO 来做数据的同步。就像我在 demo 中的用法。当然了系统提供的 KVO 使用起来太过麻烦和危险，一般在项目中使用的都是 Facebook 开源的 FBKVOController 。当然也会有一些坑需要注意，可以参考我的[这篇](./NSHashTable-NSMapTable.md)文章.
 
 
 
