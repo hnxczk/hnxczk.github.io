@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -40,11 +40,29 @@
                                     <action selector="rightClick" destination="BYZ-38-t0r" eventType="touchUpInside" id="gJH-Or-Acg"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SrK-TC-fOG">
+                                <rect key="frame" x="137.5" y="371.5" width="100" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="0Hc-OE-25O"/>
+                                    <constraint firstAttribute="width" constant="100" id="AEi-g2-4fF"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="Loi-nf-mLP"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="vsJ-El-3yw"/>
+                                </constraints>
+                                <state key="normal" title="Button3">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="leftClick" destination="BYZ-38-t0r" eventType="touchUpInside" id="rR7-vS-mhm"/>
+                                    <action selector="middleClick" destination="BYZ-38-t0r" eventType="touchUpInside" id="d7y-lc-Vci"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Rlh-hj-a2I" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-60" id="1OP-cq-r68"/>
                             <constraint firstItem="93c-iy-pcu" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="60" id="5Vw-Fr-6oE"/>
+                            <constraint firstItem="SrK-TC-fOG" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="60" id="5eo-KY-zkI"/>
+                            <constraint firstItem="SrK-TC-fOG" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="6ZB-Li-fna"/>
                             <constraint firstItem="Rlh-hj-a2I" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="GjU-AR-GaI"/>
                             <constraint firstItem="93c-iy-pcu" firstAttribute="height" secondItem="Rlh-hj-a2I" secondAttribute="height" id="T6b-Hv-DCh"/>
                             <constraint firstItem="93c-iy-pcu" firstAttribute="width" secondItem="Rlh-hj-a2I" secondAttribute="width" id="b49-rt-FlZ"/>
