@@ -95,8 +95,7 @@ XCode Release编译默认会生成dSYM文件，而Debug编译默认不会生成.
 
 具体操作如下图
 
-[](./images/instruments_10.gif)
-
+<img src="./images/instruments_10.gif"></img>
 
 #### Focus
 
@@ -105,7 +104,7 @@ XCode Release编译默认会生成dSYM文件，而Debug编译默认不会生成.
 ![](./images/instruments_11.png)
 
 ![](./images/instruments_12.png)
-
+
 这样就可以排除其他的干扰。
 
 # 参考
