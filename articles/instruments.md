@@ -7,7 +7,7 @@
 ## Time Profiler（时间分析器？）
 
 ### 启动 
-首先是启动 Instruments，可以通过 XCode 菜单栏上 Product 下的 Profile 来启动 或者使用快捷键 ⌘ + I 。 
+首先是启动 Instruments，可以通过 XCode 菜单栏上 Product 下的 Profile 来启动 或者使用快捷键 `⌘ + I` 。 
 
 <img src="./images/instruments_1.png" height="300"></img>
 
