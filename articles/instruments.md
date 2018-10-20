@@ -1,13 +1,13 @@
 # Instruments
 
-众所周知 Instruments 是 Apple 提供的检测工具，功能强大。这里结合 《 iOS 和 macOS 性能优化》 这本书来记录下部分工具的用法。
+众所周知 Instruments 是 Apple 提供的检测工具，功能强大。这里结合 《 iOS 和 macOS 性能优化》 这本书来记录下部分工具的用法。
 
 [官方文档地址](https://help.apple.com/instruments/mac/current/#//apple_ref/doc/uid/TP40004652)
 
 ## Time Profiler（时间分析器？）
 
 ### 启动 
-首先是启动 Instruments，可以通过 XCode 菜单栏上 Product 下的 Profile 来启动 或者使用快捷键 ⌘ + I 。 
+首先是启动 Instruments，可以通过 XCode 菜单栏上 Product 下的 Profile 来启动 或者使用快捷键 ⌘ + I 。 
 
 <img src="./images/instruments_1.png" height="300"></img>
 
