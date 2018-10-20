@@ -13,6 +13,7 @@
 - [MVVM 实战](./articles/MVVM.md)
 - [InfiniteTree 一个可以无限展开的树状 TableView](https://github.com/hnxczk/InfiniteTree)
 - [一行代码自动调整位于 ScroollView 上的 UItextField 的位置](https://github.com/hnxczk/ScrollViewAutoAdjust)
+- [Instruments 分析](./articles/instruments.md)
 
 ## 源码解析
 - [SDWebImage](./articles/sd.md)
