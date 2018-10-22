@@ -3,6 +3,7 @@
 
 ## iOS
 
+- [笔记](./articles/note.md)
 - [GCD](./articles/GCD.md)
 - [性能优化](./articles/performance-optimization.md)
 - [iOS中的锁](./articles/locks.md)
