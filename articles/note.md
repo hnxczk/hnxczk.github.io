@@ -68,3 +68,53 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 1. 尽量不要使用 count 的属性或方法。把 count 当成关键字就行了。
 2. 尽可能的使用类型转换。能不用 id 就别用。
+
+## 准确计算 string 的 size
+
+在 iOS7 之后的项目中遇到计算 string 的 size 往往利用下面的方法计算
+
+```
+- (CGRect)boundingRectWithSize:(CGSize)size options:(NSStringDrawingOptions)options attributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attributes context:(nullable NSStringDrawingContext *)context NS_AVAILABLE(10_11, 7_0);
+```
+
+- 参数一：size 表示计算文本的最大宽高(就是限制的最大高度、宽度)。
+
+- 参数二：options 表示计算的类型
+    1. `NSStringDrawingUsesLineFragmentOrigin`: 整个文本将以每行组成的矩形为单位计算整个文本的尺寸
+
+    2. `NSStringDrawingUsesFontLeading`: 使用字体的行间距来计算文本占用的范围，即每一行的底部到下一行的底部的距离计算
+
+    3. `NSStringDrawingUsesDeviceMetrics`: 将文字以图像符号计算文本占用范围，而不是以字符计算。也即是以每一个字体所占用的空间来计算文本范围
+
+    4. `NSStringDrawingTruncatesLastVisibleLine`: //当文本不能适合的放进指定的边界之内，则自动在最后一行添加省略符号。如果 `NSStringDrawingUsesLineFragmentOrigin`没有设置，则该选项不生效
+
+- 参数三：attributes 表示富文本的属性 NSAttributedString 比如字体、文字样式 NSFontAttributeName、NSParagraphStyleAttributeName
+
+- 参数四：NSStringDrawingContext context上下文，包括一些信息，例如如何调整字间距以及缩放。该参数一般可为 nil 。
+
+一般使用 `NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading` 这两个配置。
+
+即使是这样计算出来的尺寸依然会有微小的差距。根据经验在获取高度时 +1 就可以解决这一问题，这优势为什么呢？
+
+后来找到了下面这句话。
+> This method returns the actual bounds of the glyphs in the string. Some of the glyphs (spaces, for example) are allowed to overlap the layout constraints specified by the size passed in, so in some cases the width value of the size component of the returned CGRect can exceed the width value of the size parameter.
+
+返回值CGRect的Size含有小数点，如果使用函数返回值CGRect的Size来定义View大小，必需使用“ceil”函数获取长宽（ceil：大于当前值的最小正数）。
+
+这样就解释了为什么 +1 就能解决这一问题了。
+
+所以应当使用下面的方法来计算 string 的 size。
+
+```
+- (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size
+{
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName,nil];
+    CGSize realSize = [self boundingRectWithSize:size options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:dict context:nil].size;
+    return CGSizeMake(ceilf(realSize.width), ceilf(realSize.height));
+}
+```
+
+参考：
+- [https://www.jianshu.com/p/c615a76dace2](https://www.jianshu.com/p/c615a76dace2)
+- [http://mrpeak.cn/blog/uilabel/](http://mrpeak.cn/blog/uilabel/)
+- [https://blog.csdn.net/xjkstar/article/details/47165983](https://blog.csdn.net/xjkstar/article/details/47165983)
