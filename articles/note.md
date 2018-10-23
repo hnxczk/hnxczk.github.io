@@ -45,7 +45,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 ```
 经测试上面的代码是不会报错的。
 
-但是添加下面任意一个属性之后就会出现开头说的编译错误。
+但是为 ViewController 或者任意类添加下面任意一个属性之后就会出现开头说的编译错误。
 
 ```
 @property (nonatomic, assign) int count;
@@ -60,9 +60,11 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 那为什么把 NSArray 转成 id 类型调用 count 方法不会有错呢？
 
-因为Foundation框架的所有 count 方法的返回值都是 一个NSUInteger 类型，编译器找到的签名自然都是一样的。
+因为Foundation框架的所有 count 方法的返回值都是 一个 NSUInteger 类型，编译器找到的签名自然都是一样的。
 
 如果我们把 count 的类型也改成 NSUInteger 或者 NSInteger 就不会报错了。
+
+总的来说这就是编译器做的一些优化，到运行时调用方法就成了消息发送，这时候会根据运行时的类型去查找对应的方法。
 
 这里给我们的经验就是
 
@@ -99,7 +101,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 后来找到了下面这句话。
 > This method returns the actual bounds of the glyphs in the string. Some of the glyphs (spaces, for example) are allowed to overlap the layout constraints specified by the size passed in, so in some cases the width value of the size component of the returned CGRect can exceed the width value of the size parameter.
 
-返回值CGRect的Size含有小数点，如果使用函数返回值CGRect的Size来定义View大小，必需使用“ceil”函数获取长宽（ceil：大于当前值的最小正数）。
+返回值 CGRect 的 Size 含有小数点，如果使用函数返回值 CGRect 的 Size 来定义 View 大小，必需使用 “ceil” 函数获取长宽（ceil：大于当前值的最小正数）。
 
 这样就解释了为什么 +1 就能解决这一问题了。
 
