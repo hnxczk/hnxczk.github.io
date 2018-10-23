@@ -15,7 +15,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 ```
 [(NSArray *)[dataArray objectAtIndex:section] count]
 ```
-将 id 类型强转为 NSArray 类型。这样编译器就不会报错了。
+将 id 类型强转为 NSArray 类型。这样编译器就不会报错了。
 
 下面来复现下出现问题的步骤。
 
@@ -45,7 +45,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 ```
 经测试上面的代码是不会报错的。
 
-但是添加下面任意一个属性之后就会出现开头说的编译错误。
+但是添加下面任意一个属性之后就会出现开头说的编译错误。
 
 ```
 @property (nonatomic, assign) int count;
@@ -54,9 +54,9 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 @property (nonatomic, strong) NSNumber *count;
 ```
 
-这是为什么呢？
+这是为什么呢？
 
-当对 id 类型调用 count 方法的时候，编译器会遍历所有的可见头文件的 count 方法，编译器当然会找到多个定义，因为 count 方法在 NSArray，NSSet 等等这些类上也有实现，而且我声明的 count 方法返回的是一个 int 或者 NSNumber 对象，这和 NSArray，NSSet 等的 count 方法返回NSUInteger 类型不一样，所以编译器会给一个异常。提示有重复的方法签名。
+当对 id 类型调用 count 方法的时候，编译器会遍历所有的可见头文件的 count 方法，编译器当然会找到多个定义，因为 count 方法在 NSArray，NSSet 等等这些类上也有实现，而且我声明的 count 方法返回的是一个 int 或者 NSNumber 对象，这和 NSArray，NSSet 等的 count 方法返回NSUInteger 类型不一样，所以编译器会给一个异常。提示有重复的方法签名。
 
 那为什么把 NSArray 转成 id 类型调用 count 方法不会有错呢？
 
@@ -64,7 +64,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 如果我们把 count 的类型也改成 NSUInteger 或者 NSInteger 就不会报错了。
 
-这里给我们的经验就是
+这里给我们的经验就是
 
 1. 尽量不要使用 count 的属性或方法。把 count 当成关键字就行了。
 2. 尽可能的使用类型转换。能不用 id 就别用。
@@ -94,7 +94,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 一般使用 `NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading` 这两个配置。
 
-即使是这样计算出来的尺寸依然会有微小的差距。根据经验在获取高度时 +1 就可以解决这一问题，这优势为什么呢？
+即使是这样计算出来的尺寸依然会有微小的差距。根据经验在获取高度时 +1 就可以解决这一问题，这又是为什么呢？
 
 后来找到了下面这句话。
 > This method returns the actual bounds of the glyphs in the string. Some of the glyphs (spaces, for example) are allowed to overlap the layout constraints specified by the size passed in, so in some cases the width value of the size component of the returned CGRect can exceed the width value of the size parameter.
@@ -103,7 +103,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 这样就解释了为什么 +1 就能解决这一问题了。
 
-所以应当使用下面的方法来计算 string 的 size。
+所以应当使用下面的方法来计算 string 的 size。
 
 ```
 - (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size
