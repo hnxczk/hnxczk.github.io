@@ -19,7 +19,7 @@
 
 ![](./images/instruments_3.jpg)
 
-这个时候把 debug 改成 release 就能生成 dSYM 文件，并查看到具体函数名和代码行号了。
+这个时候把 debug 改成 release 就能生成 dSYM 文件，并查看到具体函数名和代码行号了。
 
 ![](./images/instruments_4.jpg)
 
@@ -104,7 +104,7 @@ XCode Release编译默认会生成dSYM文件，而Debug编译默认不会生成.
 ![](./images/instruments_11.png)
 
 ![](./images/instruments_12.png)
-
+
 这样就可以专注于选中的调用。
 
 # 参考
