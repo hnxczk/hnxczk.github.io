@@ -47,5 +47,6 @@
 
 ## 读书笔记
 - [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
+- [图说设计模式](./articles/reading-notes/Graphic-Design-Patterns/00-note.md)
 
 
