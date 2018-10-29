@@ -39,9 +39,6 @@
 - [开发者账号相关](./articles/ios-app-on-line.md)
 - [UML类图](./articles/uml.md)
 
-## 优质博客
-- [合集](./articles/blogs.md)
-
 ## 面试题
 - [面试题](./articles/interview.md)
 
@@ -49,4 +46,5 @@
 - [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
 - [图说设计模式](./articles/reading-notes/Graphic-Design-Patterns/00-note.md)
 
-
+## 优质博客
+- [合集](./articles/blogs.md)
