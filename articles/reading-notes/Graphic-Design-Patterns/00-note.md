@@ -291,7 +291,12 @@ class FlyWeightFactory {
 
 在某些情况下，一个客户不方便引用一个对象或者引用一个对象不符合需求的时候，可以通过一个称之为“代理”的第三者来实现 间接引用。代理对象可以在客户端和目标对象之间起到 中介的作用，并且可以通过代理对象去掉客户不能看到 的内容和服务或者添加客户需要的额外服务。
 
-在 iOS 中代理的使用往往是传递信息的一种方式，这里所提的的代理模式更像是一种约束或者便利访问对象的方式。
+在 iOS 中代理（delegate）的使用往往是传递信息的一种方式，这里所提的的代理模式更像是一种约束或者便利访问对象的方式。
+
+在 iOS 中 NSProxy 这个抽象类的用法更符合这里说的代理模式，它负责将消息转发到真正的 target 的代理类。
+
+更多内容可以产看这里
+[NSProxy——少见却神奇的类](http://ios.jobbole.com/87856/)
 
 几种常用的代理模式
 
@@ -300,6 +305,7 @@ class FlyWeightFactory {
 - 远程代理：远程代理可以将网络的细节隐藏起来，使得客户端不必考虑网络的存在。客户完全可以认为被代理的远程业务对象是局域的而不是远程的，而远程代理对象承担了大部分的网络通信工作。
 
 - 虚拟代理：当一个对象的加载十分耗费资源的时候，虚拟代理的优势就非常明显地体现出来了。虚拟代理模式是一种内存节省技术，那些占用大量内存或处理复杂的对象将推迟到使用它的时候才创建。
+
 
 
 ## 行为型模式
@@ -389,7 +395,103 @@ receiver action
 
 ### 中介者模式
 
+中介者模式(Mediator Pattern)定义：用一个中介对象来封装一系列的对象交互，中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。中介者模式又称为调停者模式，它是一种对象行为型模式。
+
+![](./images/Mediator.jpg)
+
+Mediator: 抽象中介者
+
+```
+protocol Mediator {
+    func operation(nWho: Int, str: String)
+    func registered(nWho: Int, colleague: Colleague)
+}
+```
+ConcreteMediator: 具体中介者
+```
+class ConcreateMediator: Mediator {
+    
+    var colleagueMap = Dictionary<Int, Colleague>()
+    
+    func operation(nWho: Int, str: String) {
+        let colleague = self.colleagueMap[nWho]
+        if let colleague = colleague {
+            colleague.receiveMsg(str: str)
+        } else {
+            print("not found this colleague!")
+        }
+    }
+    
+    func registered(nWho: Int, colleague: Colleague) {
+        colleagueMap[nWho] = colleague
+        colleague.mediator = self
+    }
+}
+```
+
+Colleague: 抽象同事类
+
+```
+class Colleague {
+    
+    var mediator: Mediator?
+    
+    func receiveMsg(str: String) { }
+    func sendMsg(toWho: Int, str: String) { }
+}
+```
+
+ConcreteColleague: 具体同事类
+```
+class ConcreteColleagueA: Colleague {
+    override func receiveMsg(str: String) {
+        print("ConcreteColleagueA reveivemsg: \(str)")
+    }
+    
+    override func sendMsg(toWho: Int, str: String) {
+        print("send msg from colleagueA,to: \(toWho)")
+        self.mediator?.operation(nWho: toWho, str: str)
+    }
+}
+```
+
+调用
+```
+    let pm = ConcreateMediator()
+        
+    let pa = ConcreteColleagueA()
+    pm.registered(nWho: 1, colleague: pa)
+        
+    let pb = ConcreteColleagueB()
+    pm.registered(nWho: 2, colleague: pb)
+        
+    pa.sendMsg(toWho: 2, str: "hello, i am a")
+        
+    pb.sendMsg(toWho: 1, str: "hello, i am b")
+```
+
+结果
+
+```
+send msg from colleagueA,to: 2
+ConcreteColleagueB reveivemsg: hello, i am a
+send msg from colleagueB,to: 1
+ConcreteColleagueA reveivemsg: hello, i am b
+```
+
+中介者模式可以使对象之间的关系数量急剧减少.
+
+其实简单来看的话，中介者负责 同事 之间的联系和协调。这样的话同事之前联系就可以减少了。而且中介者还可以对不同同事的请求分别处理。
+
+iOS 中经典的架构方式 MVC 也可以看成是中介者模式。其中 controller 起到了中介者的作用，这样以来 view 和 model 就可以相互分离了，更好的解耦和便于代码重用。当然由于中介者类包含了同事之间的交互细节，这样就倒置中介者类非常复杂，越来越难于维护。这也是 MVC 使用时需要注意的地方。
 
 ### 观察者模式
+
+观察者模式(Observer Pattern)：定义对象间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。观察者模式又叫做发布-订阅（Publish/Subscribe）模式、模型-视图（Model/View）模式、源-监听器（Source/Listener）模式或从属者（Dependents）模式。
+
+观察者模式是我们在开发中常见的一种设计模式，比如 iOS 中 通知（NSNotification），KVO都属于这一模式的应用。甚至我认为 iOS 中 的 delegate 也可以看成是一个一对一的观察者。比如 TableView 的 delegate，当点击某行的时候会通知 delegate 的 didselectAtIndexPath 方法。（TableView 的 dataSource 应该属于代理模式，自己不处理数据，而是由 dataSource 处理好数据后提供给自己）
+
 ### 状态模式
+
+
 ### 策略模式
