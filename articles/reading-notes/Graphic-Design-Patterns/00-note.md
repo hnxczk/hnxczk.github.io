@@ -481,15 +481,15 @@ ConcreteColleagueA reveivemsg: hello, i am b
 
 中介者模式可以使对象之间的关系数量急剧减少.
 
-其实简单来看的话，中介者负责 同事 之间的联系和协调。这样的话同事之前联系就可以减少了。而且中介者还可以对不同同事的请求分别处理。
+其实简单来看的话，中介者负责 同事 之间的联系和协调。这样的话同事之前联系就可以减少了。而且中介者还可以对不同同事的请求分别处理。
 
-iOS 中经典的架构方式 MVC 也可以看成是中介者模式。其中 controller 起到了中介者的作用，这样以来 view 和 model 就可以相互分离了，更好的解耦和便于代码重用。当然由于中介者类包含了同事之间的交互细节，这样就倒置中介者类非常复杂，越来越难于维护。这也是 MVC 使用时需要注意的地方。
+iOS 中经典的架构方式 MVC 也可以看成是中介者模式。其中 controller 起到了中介者的作用，这样以来 view 和 model 就可以相互分离了，更好的解耦和便于代码重用。当然由于中介者类包含了同事之间的交互细节，这样就倒置中介者类非常复杂，越来越难于维护。这也是 MVC 使用时需要注意的地方。
 
 ### 观察者模式
 
 观察者模式(Observer Pattern)：定义对象间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。观察者模式又叫做发布-订阅（Publish/Subscribe）模式、模型-视图（Model/View）模式、源-监听器（Source/Listener）模式或从属者（Dependents）模式。
 
-观察者模式是我们在开发中常见的一种设计模式，比如 iOS 中 通知（NSNotification），KVO都属于这一模式的应用。甚至我认为 iOS 中 的 delegate 也可以看成是一个一对一的观察者。比如 TableView 的 delegate，当点击某行的时候会通知 delegate 的 didselectAtIndexPath 方法。（TableView 的 dataSource 应该属于代理模式，自己不处理数据，而是由 dataSource 处理好数据后提供给自己）
+观察者模式是我们在开发中常见的一种设计模式，比如 iOS 中 通知（NSNotification），KVO都属于这一模式的应用。甚至我认为 iOS 中 的 delegate 也可以看成是一个一对一的观察者。比如 TableView 的 delegate，当点击某行的时候会通知 delegate 的 didselectAtIndexPath 方法。（TableView 的 dataSource 应该属于代理模式，自己不处理数据，而是由 dataSource 处理好数据后提供给自己）
 
 ### 状态模式
 
