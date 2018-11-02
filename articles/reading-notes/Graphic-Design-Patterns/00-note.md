@@ -148,7 +148,7 @@ extension UIButton {
 ### 5. 单例模式
 单例模式就都比较熟悉了，iOS 中诸如 UIApplication 这些单例是我们经常用到的。我们也常常自定义单例。由于单例模式比较简单，唯一需要注意的就是单例模式的滥用。要避免无谓的单例。
 
-在使用单利的时候最需要注意的就是线程安全的问题。具体可以参考我之前的[一篇文章](https://github.com/hnxczk/hnxczk.github.io/blob/master/articles/reading-notes/head-first-design-pattern/05-singleton-pattern.md ).
+在使用单例的时候最需要注意的就是线程安全的问题。具体可以参考我之前的[一篇文章](https://github.com/hnxczk/hnxczk.github.io/blob/master/articles/reading-notes/head-first-design-pattern/05-singleton-pattern.md ).
 
 ## 结构型模式
 不止一次看到“多用组合，少用继承”这句话。而结构型的设计模式就是用来解决如何将一个个类组合在一起这个问题的。
