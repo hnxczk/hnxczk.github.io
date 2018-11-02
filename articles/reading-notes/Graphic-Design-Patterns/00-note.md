@@ -492,6 +492,248 @@ ConcreteColleagueA reveivemsg: hello, i am b
 观察者模式是我们在开发中常见的一种设计模式，比如 iOS 中 通知（NSNotification），KVO都属于这一模式的应用。甚至我认为 iOS 中 的 delegate 也可以看成是一个一对一的观察者。比如 TableView 的 delegate，当点击某行的时候会通知 delegate 的 didselectAtIndexPath 方法。（TableView 的 dataSource 应该属于代理模式，自己不处理数据，而是由 dataSource 处理好数据后提供给自己）
 
 ### 状态模式
+状态模式(State Pattern) ：允许一个对象在其内部状态改变时改变它的行为。其别名为状态对象(Objects for States)，状态模式是一种对象行为型模式。
+
+![](./images/State.jpg)
+![](./images/seq_State.jpg)
+
+Context: 环境类
+```
+class Context {
+    var state: State
+    
+    init(originalState: State) {
+        self.state = originalState
+    }
+    
+    func changeState(state: State) {
+        print("change state to \(state)")
+        self.state = state
+    }
+    
+    func request() {
+        self.state.handle(context: self)
+    }
+}
+```
+State: 抽象状态类
+```
+protocol State {
+    
+    static func share() -> State
+    func handle()
+    
+}
+```
+ConcreteState: 具体状态类
+```
+class ConcreteStateA: State {
+    
+    private static let instance = ConcreteStateA()
+    
+    static func share() -> State {
+        return instance
+    }
+    
+    func handle(context: Context) {
+        print("doing something in State A.")
+        context.changeState(state: ConcreteStateB.share())
+    }
+}
+
+class ConcreteStateB: State {
+    
+    private static let instance = ConcreteStateB()
+    
+    static func share() -> State {
+        return instance
+    }
+    
+    func handle(context: Context) {
+        print("doing something in State B.")
+        context.changeState(state: ConcreteStateA.share())
+    }
+}
+```
+使用
+```
+    let context = Context(originalState: ConcreteStateA.share())
+    context.request()
+    context.request()
+    context.request()
+```
+结果
+```
+doing something in State A.
+change state to _7_State.ConcreteStateB
+doing something in State B.
+change state to _7_State.ConcreteStateA
+doing something in State A.
+change state to _7_State.ConcreteStateB
+```
+
+上面的代码使用的单利模式，当然也可以不使用，每次切换状态的时候创建新的状态类也是可以。
+
+这种设计思想是比较常用的一种，比如我们在做需求的时候经常遇到两个界面差别不大，这个时候最直接的做法就是通过传入一个状态（我之前在大多数情况下都是使用枚举）来区分不同的业务类型。这就跟状态模式很相似了。但是我之前的那种做法有很严重的弊端，就是所有的代码都耦合在一起，需要通过 if else 来区分业务。维护起来相当麻烦。而通过采用状态模式中抽象出来一个状态类的方法会更好的处理这种情况。（这样以来怎么越来越像策略模式了。。）
+
+>状态模式和策略模式的实现方法非常类似，都是利用多态把一些操作分配到一组相关的简单的类中，因此很多人认为这两种模式实际上是相同的。
+
+>然而在现实世界中，策略（如促销一种商品的策略）和状态（如同一个按钮来控制一个电梯的状态，又如手机界面中一个按钮来控制手机）是两种完全不同的思想。当我们对状态和策略进行建模时，这种差异会导致完全不同的问题。例如，对状态进行建模时，状态迁移是一个核心内容；然而，在选择策略时，迁移与此毫无关系。另外，策略模式允许一个客户选择或提供一种策略，而这种思想在状态模式中完全没有。
+>
+>一个策略是一个计划或方案，通过执行这个计划或方案，我们可以在给定的输入条件下达到一个特定的目标。策略是一组方案，他们可以相互替换；选择一个策略，获得策略的输出。策略模式用于随不同外部环境采取不同行为的场合。我们可以参考微软企业库底层Object Builder的创建对象的strategy实现方式。而状态模式不同，对一个状态特别重要的对象，通过状态机来建模一个对象的状态；状态模式处理的核心问题是状态的迁移，因为在对象存在很多状态情况下，对各个business flow，各个状态之间跳转和迁移过程都是及其复杂的。
+>例如一个工作流，审批一个文件，存在新建、提交、已修改、HR部门审批中、老板审批中、HR审批失败、老板审批失败等状态，涉及多个角色交互，涉及很多事件，这种情况下用状态模式(状态机)来建模更加合适；把各个状态和相应的实现步骤封装成一组简单的继承自一个接口或抽象类的类，通过另外的一个Context来操作他们之间的自动状态变换，通过event来自动实现各个状态之间的跳转。在整个生命周期中存在一个状态的迁移曲线，这个迁移曲线对客户是透明的。我们可以参考微软最新的WWF 状态机工作流实现思想。
+
+>**在状态模式中，状态的变迁是由对象的内部条件决定，外界只需关心其接口，不必关心其状态对象的创建和转化；而策略模式里，采取何种策略由外部条件(C)决定。**
+
+>他们应用场景（目的）却不一样，**State模式重在强调对象内部状态的变化改变对象的行为，Strategy模式重在外部对策略的选择**，策略的选择由外部条件决定，也就是说算法的动态的切换。但由于它们的结构是如此的相似，我们可以认为“状态模式是完全封装且自修改的策略模式”。即状态模式是封装对象内部的状态的，而策略模式是封装算法族的.
+
+上面出自[https://blog.csdn.net/hguisu/article/details/7557252](https://blog.csdn.net/hguisu/article/details/7557252)，对于策略模式与状态模式的区分还是比较清楚的。
 
 
 ### 策略模式
+
+策略模式(Strategy Pattern)：定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化，也称为政策模式(Policy)。
+
+![](./images/Strategy.jpg)
+![](./images/seq_Strategy.jpg)
+
+从类图上来看策略模式与状态模式之间没有区别，而从时序图上就能清楚看出他们的区别。
+
+Context: 环境类
+```
+class Context {
+    var strategy: Strategy?
+    
+    func algorithm() {
+        self.strategy?.algorithm()
+    }
+}
+```
+Strategy: 抽象策略类
+```
+protocol Strategy {
+    func algorithm()
+}
+```
+ConcreteStrategy: 具体策略类
+```
+class ConcreteStrategyA: Strategy {
+    func algorithm() {
+        print("ConcreteStrategyA")
+    }
+}
+
+class ConcreteStrategyB: Strategy {
+    func algorithm() {
+        print("ConcreteStrategyB")
+    }
+}
+```
+使用
+```
+    let context = Context()
+        
+    let concreteStrategyA = ConcreteStrategyA()
+    context.strategy = concreteStrategyA
+    context.algorithm()
+        
+    let concreteStrategyB = ConcreteStrategyB()
+    context.strategy = concreteStrategyB
+    context.algorithm()
+```
+结果
+```
+ConcreteStrategyA
+ConcreteStrategyB
+```
+
+> 策略模式是对算法的封装，它把算法的责任和算法本身分割开，委派给不同的对象管理。策略模式通常把一个系列的算法封装到一系列的策略类里面，作为一个抽象策略类的子类。
+
+这里的算法可以理解为广义的算法，比如业务逻辑也可以封装成对应的算法。这样以来使用策略模式就能更好的结构，也更加符合开闭原则，防止写出多重条件转移语句。对代码的可读性也有提高。
+
+在实际运用的过程中，我把它用在了 tableview 的 获取 cell 方法中。
+
+当一个 tableview 在不同的位置显示不同的数据甚至不同样式的 cell 的时候，最直接的做法就是通过条件判断语句来判断 indexPath 然后根据 section 和 row 来返回对应的 cell。 这样以来对于较为复杂的页面来说这块儿的逻辑会很复杂，而且并不好拓展。这个时候就可以使用策略模式来优化代码。把每一行要显示的 cell 类型 以及 cell 对应的数据封装起来，封装成一个策略，然后使用的时候直接利用对应的策略来显示对应的 cell 就可以了。
+
+下面两个就是抽象出来的策略模型， SectionModel 对应 tableview 中的一组， RowModel 对应一行。
+
+```
+@interface SectionModel : NSObject
+
+@property (nonatomic, strong) NSArray <RowModel *>*rowModels;
+
+@property (nonatomic, copy) NSString *sectionTitle;
+@property (nonatomic, strong) NSString *sectionHeaderReuseId;
+@property (nonatomic, assign) CGFloat sectionHeaderHeight;
+@property (nonatomic, strong) UIColor *sectionHeaderColor;
+
+@property (nonatomic, strong) NSString *sectionFooterReuseId;
+@property (nonatomic, assign) CGFloat sectionFooterHeight;
+@property (nonatomic, strong) UIColor *sectionFooterColor;
+
+@end
+```
+
+```
+@interface RowModel : NSObject
+
+@property (nonatomic, strong) NSString *cellReuseId;
+@property (nonatomic, strong) id cellModel;
+@property (nonatomic, assign) CGFloat cellHeight;
+
+@end
+```
+
+初始化界面的时候根据业务组装策略模型数组
+
+```
+- (void)configureSections
+{
+    NSMutableArray *sections = [NSMutableArray array];
+    
+    // 第一组
+    {
+        SectionModel *section = [[SectionModel alloc] init];
+        NSMutableArray *rows = [NSMutableArray array];
+        
+        // 第一行
+        RowModel *row0 = [[RowModel alloc] init];
+        row0.cellModel = self.tagModel;
+        row0.cellHeight = [self.tagModel calculateCellHeight];
+        row0.cellReuseId = @"ChapterBuyTitleCell";
+        [rows addObject:row0];
+        
+        ...
+
+        section.rowModels = rows;
+        [sections addObject:section];
+    }
+
+    ...
+
+    self.sectionModels = sections;
+}
+```
+
+显示
+```
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    SectionModel *sectionModel = self.viewModel.sectionModels[indexPath.section];
+    RowModel *rowModel = sectionModel.rowModels[indexPath.row];
+    UITableViewCell<CellProtocol> *cell = [tableView dequeueReusableCellWithIdentifier:rowModel.cellReuseId];
+    [cell bindModel:rowModel.cellModel];
+    return cell;
+}
+```
+
+通过上面这样的处理 tableView 需要处理的逻辑就减少了很多，也更加清晰了。（结合 MVVM 使用有奇效哦。。。）
+
+
+## 总结
+
+这本书在介绍设计模式方面还是不错的，对使用比较多的设计模式都有介绍。在看的过程中我也结合了实际开发中遇到的问题和解决方案稍微拓展了一下与 iOS 实际开发相关的设计模式。部分设计模式用 swift 写了几个例子，看的时候可以参考一下。
+
+[代码](./code)
+
+以上。
