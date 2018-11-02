@@ -587,8 +587,9 @@ change state to _7_State.ConcreteStateB
 
 >他们应用场景（目的）却不一样，**State模式重在强调对象内部状态的变化改变对象的行为，Strategy模式重在外部对策略的选择**，策略的选择由外部条件决定，也就是说算法的动态的切换。但由于它们的结构是如此的相似，我们可以认为“状态模式是完全封装且自修改的策略模式”。即状态模式是封装对象内部的状态的，而策略模式是封装算法族的.
 
-上面出自[https://blog.csdn.net/hguisu/article/details/7557252](https://blog.csdn.net/hguisu/article/details/7557252)，对于策略模式与状态模式的区分还是比较清楚的。
+上面出自[https://blog.csdn.net/hguisu/article/details/7557252](https://blog.csdn.net/hguisu/article/details/7557252)，对于策略模式与状态模式的区分还是比较清楚的。
 
+这样看来我上面提到的不同界面通过状态来区分更符合策略模式而不是状态模式，毕竟一个界面显示完之后就确定了下来，不会根据状态再去取更改了。
 
 ### 策略模式
 
