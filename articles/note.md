@@ -120,3 +120,173 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 - [https://www.jianshu.com/p/c615a76dace2](https://www.jianshu.com/p/c615a76dace2)
 - [http://mrpeak.cn/blog/uilabel/](http://mrpeak.cn/blog/uilabel/)
 - [https://blog.csdn.net/xjkstar/article/details/47165983](https://blog.csdn.net/xjkstar/article/details/47165983)
+
+## 截图
+
+最近在做一个视频截图的功能，在这里记录一下遇到的问题。
+
+iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quartz, OpenGL ES, SpriteKit 等等。在截图的时候用到的方法也不尽相同。
+
+### 一般视图
+
+对于一般的视图，比如创建的 View 以及通过 Core Graphics 绘制的图形。这些都可以通过下面的方法来获取其截图。
+```
+- (UIImage *)viewToImage
+{
+    UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.opaque, 0.0);
+    [self.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage * img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return img;
+}
+```
+
+### OpenGL
+
+通过 OpenGL 绘制的视图来说，上面的方法是不起作用的，需要使用下面的方法
+
+```
+// IMPORTANT: Call this method after you draw and before -presentRenderbuffer:.
+- (UIImage*)snapshot:(UIView*)eaglview
+{
+    GLint backingWidth, backingHeight;
+ 
+    // Bind the color renderbuffer used to render the OpenGL ES view
+    // If your application only creates a single color renderbuffer which is already bound at this point,
+    // this call is redundant, but it is needed if you're dealing with multiple renderbuffers.
+    // Note, replace "_colorRenderbuffer" with the actual name of the renderbuffer object defined in your class.
+    // glBindRenderbufferOES(GL_RENDERBUFFER, _colorRenderbuffer);
+ 
+    // Get the size of the backing CAEAGLLayer
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
+ 
+    NSInteger x = 0, y = 0, width = backingWidth, height = backingHeight;
+    NSInteger dataLength = width * height * 4;
+    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+ 
+    // Read pixel data from the framebuffer
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+ 
+    // Create a CGImage with the pixel data
+    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+    // otherwise, use kCGImageAlphaPremultipliedLast
+    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+                                    ref, NULL, true, kCGRenderingIntentDefault);
+ 
+    // OpenGL ES measures data in PIXELS
+    // Create a graphics context with the target size measured in POINTS
+    NSInteger widthInPoints, heightInPoints;
+    if (NULL != UIGraphicsBeginImageContextWithOptions) {
+        // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
+        // so that you get a high-resolution snapshot when its value is greater than 1.0
+        CGFloat scale = eaglview.contentScaleFactor;
+        widthInPoints = width / scale;
+        heightInPoints = height / scale;
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+    }
+    else {
+        // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
+        widthInPoints = width;
+        heightInPoints = height;
+        UIGraphicsBeginImageContext(CGSizeMake(widthInPoints, heightInPoints));
+    }
+ 
+    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+ 
+    // UIKit coordinate system is upside down to GL/Quartz coordinate system
+    // Flip the CGImage by rendering it to the flipped bitmap context
+    // The size of the destination area is measured in POINTS
+    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+ 
+    // Retrieve the UIImage from the current context
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+ 
+    UIGraphicsEndImageContext();
+ 
+    // Clean up
+    free(data);
+    CFRelease(ref);
+    CFRelease(colorspace);
+    CGImageRelease(iref);
+ 
+    return image;
+}
+```
+
+这个方法出自 [Apple 文档：OpenGL ES View Snapshot](https://developer.apple.com/library/archive/qa/qa1704/_index.html#//apple_ref/doc/uid/DTS40010204)。
+
+需要注意有两点
+
+1. Apple 文档中的例子是针对 Mac 平台的，iOS 平台需要修改成我上面的这样。
+2. 上面代码中 `glBindRenderbufferOES(GL_RENDERBUFFER, _colorRenderbuffer);` 被注释掉了。按照说明，当你的 APP 中只有 一个 renderbuffer 的时候可以省掉这句代码，否则需要指定 renderbuffer。 
+3. 经过测试在 iOS9+ 的系统上上面的代码可以正常截图，但是在 iOS8 系统的 iPhone5 上，上面代码不能正常截图，不知道是 iOS8 系统的原因还是 iPhone5 32 位系统的原因。
+
+### 通过 UIView 的 `-drawViewHierarchyInRect:afterScreenUpdates:` 方法
+
+这个方法也是来自 [Apple 文档：View Snapshots on iOS 7](https://developer.apple.com/library/archive/qa/qa1817/_index.html)。
+
+> This new method -drawViewHierarchyInRect:afterScreenUpdates: enables you to capture the contents of the receiver view and its subviews to an image regardless of the drawing techniques (for example UIKit, Quartz, OpenGL ES, SpriteKit, etc) in which the views are rendered
+
+根据说明可以看出来这个方法对于 UIKit, Quartz, OpenGL ES, SpriteKit等技术实现渲染的控件都能截图。
+
+```
+- (UIImage *)snapshot:(UIView *)view
+{
+    if (CGRectIsEmpty(view.frame)) {
+        return nil;
+    }
+
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, [UIScreen mainScreen].scale);
+    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:NO];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+ 
+    return image;
+}
+```
+由于有些同学反馈说这个方法会在 iOS7 上 crash。为了安全起见，参考了 [这里](https://blog.csdn.net/taishanduba/article/details/52156850)这个同学的建议，在 Apple 提供的解决方法上做了一些修改。
+
+- 添加 frame 为 empty 的判断
+- afterScreenUpdates 的参数设置为 NO
+
+### AVFoundation
+
+对于通过 AVFoundation 实现的的视频播放来说上面的方法都无法获取截图，需要使用 AVFoundation 的 AVPlayerItemVideoOutput 来获取 pixelBuffer 实现截图功能。
+
+```
+self.playerItem = [AVPlayerItem playerItemWithURL:url];
+self.PlayerItemVideoOutput = [[AVPlayerItemVideoOutput alloc] init];
+[self.playerItem addOutput:self.PlayerItemVideoOutput];
+```
+
+在创建播放的 AVPlayerItem 的时候添加 AVPlayerItemVideoOutput。
+
+```
+CMTime itemTime = self.playerItem.currentTime;
+CVPixelBufferRef pixelBuffer = [self.PlayerItemVideoOutput copyPixelBufferForItemTime:itemTime itemTimeForDisplay:nil];
+CIImage *ciImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+CIContext *temporaryContext = [CIContext contextWithOptions:nil];
+CGImageRef videoImage = [temporaryContext
+                             createCGImage:ciImage
+                             fromRect:CGRectMake(0, 0,
+                                    CVPixelBufferGetWidth(pixelBuffer),
+                                    CVPixelBufferGetHeight(pixelBuffer))];
+UIImage *frameImg = [UIImage imageWithCGImage:videoImage]    CGImageRelease(videoImage);
+```
+然后通过 AVPlayerItemVideoOutput 的 `copyPixelBufferForItemTime` 方法获取到 CVPixelBufferRef，然后转化为 UIImage。
+
+### 参考
+
+- [OpenGL ES View Snapshot](https://developer.apple.com/library/archive/qa/qa1704/_index.html#//apple_ref/doc/uid/DTS40010204)
+- [View Snapshots on iOS 7](https://developer.apple.com/library/archive/qa/qa1817/_index.html)
+- [UIGraphics crashes on iOS 7](https://stackoverflow.com/questions/19903665/uigraphics-crashes-on-ios-7)
+- [记录iOS7截图drawViewHierarchyInRect:afterScreenUpdates崩溃](https://blog.csdn.net/taishanduba/article/details/52156850)
+
+- [AVPlayer直播视频截图](https://www.jianshu.com/p/753a6e8cd90a)
