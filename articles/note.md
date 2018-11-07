@@ -224,9 +224,9 @@ iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quart
 
 需要注意有两点
 
-1. Apple 文档中的例子是针对 Mac 平台的，iOS 平台需要修改成我上面的这样。
+1. Apple 文档中的例子是针对 Mac 平台的，iOS 平台需要修改成上面的这样。
 2. 上面代码中 `glBindRenderbufferOES(GL_RENDERBUFFER, _colorRenderbuffer);` 被注释掉了。按照说明，当你的 APP 中只有 一个 renderbuffer 的时候可以省掉这句代码，否则需要指定 renderbuffer。 
-3. 经过测试在 iOS9+ 的系统上上面的代码可以正常截图，但是在 iOS8 系统的 iPhone5 上，上面代码不能正常截图，不知道是 iOS8 系统的原因还是 iPhone5 32 位系统的原因。
+3. 经过测试在 iOS9+ 的系统上上面的代码可以正常截图，但是在 iOS8 系统的 iPhone5 上，上面代码不能正常截图，不知道是 iOS8 系统的原因还是 iPhone5 32 位系统的原因
 
 ### 通过 UIView 的 `-drawViewHierarchyInRect:afterScreenUpdates:` 方法
 
@@ -234,7 +234,7 @@ iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quart
 
 > This new method -drawViewHierarchyInRect:afterScreenUpdates: enables you to capture the contents of the receiver view and its subviews to an image regardless of the drawing techniques (for example UIKit, Quartz, OpenGL ES, SpriteKit, etc) in which the views are rendered
 
-根据说明可以看出来这个方法对于 UIKit, Quartz, OpenGL ES, SpriteKit等技术实现渲染的控件都能截图。
+根据说明可以看出来这个方法对于 UIKit, Quartz, OpenGL ES, SpriteKit等技术实现渲染的控件都能截图。
 
 ```
 - (UIImage *)snapshot:(UIView *)view
