@@ -306,7 +306,7 @@ glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHe
     return image;
 }
 ```
-由于有些同学反馈说这个方法会在 iOS7 上 crash。为了安全起见，参考了 [这里](https://blog.csdn.net/taishanduba/article/details/52156850)这个同学的建议，在 Apple 提供的解决方法上做了一些修改。
+有些同学反馈说这个方法会在 iOS7 上 crash。为了安全起见，参考了 [这里](https://blog.csdn.net/taishanduba/article/details/52156850)这个同学的建议，在 Apple 提供的解决方法上做了一些修改。
 
 - 添加 frame 为 empty 的判断
 - afterScreenUpdates 的参数设置为 NO
