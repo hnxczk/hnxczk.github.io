@@ -66,7 +66,7 @@ Google 了一下大家给出的解决方案都是这样来修改代码
 
 总的来说这就是编译器做的一些优化，到运行时调用方法就成了消息发送，这时候会根据运行时的类型去查找对应的方法。
 
-这里给我们的经验就是
+这里给我的经验就是
 
 1. 尽量不要使用 count 的属性或方法。把 count 当成关键字就行了。
 2. 尽可能的使用类型转换。能不用 id 就别用。
@@ -222,11 +222,66 @@ iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quart
 
 这个方法出自 [Apple 文档：OpenGL ES View Snapshot](https://developer.apple.com/library/archive/qa/qa1704/_index.html#//apple_ref/doc/uid/DTS40010204)。
 
-需要注意有两点
+注意
 
-1. Apple 文档中的例子是针对 Mac 平台的，iOS 平台需要修改成我上面的这样。
+1. Apple 文档中的例子是针对 Mac 平台的，iOS 平台需要修改成上面的这样。
 2. 上面代码中 `glBindRenderbufferOES(GL_RENDERBUFFER, _colorRenderbuffer);` 被注释掉了。按照说明，当你的 APP 中只有 一个 renderbuffer 的时候可以省掉这句代码，否则需要指定 renderbuffer。 
-3. 经过测试在 iOS9+ 的系统上上面的代码可以正常截图，但是在 iOS8 系统的 iPhone5 上，上面代码不能正常截图，不知道是 iOS8 系统的原因还是 iPhone5 32 位系统的原因。
+3. 经过测试在 iOS9+ 的系统上上面的代码可以正常截图，但是在 iOS8 系统的 iPhone5 上，上面代码不能正常截图，不知道是 iOS8 系统的原因还是 iPhone5 32 位系统的原因
+4. 也有下面的写法，效果都是一样的
+
+```
+- (UIImage *)renderImg
+{
+        GLint backingWidth = 0;
+        GLint backingHeight = 0;
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
+        GLubyte *buffer = (GLubyte *) malloc(backingWidth * backingHeight * 4);
+        GLubyte *buffer2 = (GLubyte *) malloc(backingWidth * backingHeight * 4);
+
+        glReadPixels(0, 0, backingWidth, backingHeight, GL_RGBA, GL_UNSIGNED_BYTE,
+                     (GLvoid *)buffer);
+        for (int y=0; y<backingHeight; y++) {
+            for (int x=0; x<backingWidth*4; x++) {
+                buffer2[y * 4 * backingWidth + x] =
+                buffer[(backingHeight - y - 1) * backingWidth * 4 + x];
+            }
+        }
+        free(buffer);
+        CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer2,
+                                                                  backingWidth * backingHeight * 4,
+                                                                  myProviderReleaseData);
+        // set up for CGImage creation
+        int bitsPerComponent = 8;
+        int bitsPerPixel = 32;
+        int bytesPerRow = 4 * backingWidth;
+        CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+        // Use this to retain alpha
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+        CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+        CGImageRef imageRef = CGImageCreate(backingWidth, backingHeight,
+                                            bitsPerComponent, bitsPerPixel,
+                                            bytesPerRow, colorSpaceRef,
+                                            bitmapInfo, provider,
+                                            NULL, NO,
+                                            renderingIntent);
+        // this contains our final image.
+        UIImage *newUIImage = [UIImage imageWithCGImage:imageRef];
+        CGImageRelease(imageRef);
+        CGColorSpaceRelease(colorSpaceRef);
+        CGDataProviderRelease(provider);
+
+        return newUIImage;
+}
+```
+
+需要注意宽高建议都通过下面的代码获取，千万不要通过 view 的 size 和 屏幕的 scale 来计算（对于 iPhone6 plus 这一系列尺寸的屏幕来说需要额外除去 downsampling - 1.15）。
+```
+GLint backingWidth = 0;
+GLint backingHeight = 0;
+glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
+glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
+```
 
 ### 通过 UIView 的 `-drawViewHierarchyInRect:afterScreenUpdates:` 方法
 
@@ -234,7 +289,7 @@ iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quart
 
 > This new method -drawViewHierarchyInRect:afterScreenUpdates: enables you to capture the contents of the receiver view and its subviews to an image regardless of the drawing techniques (for example UIKit, Quartz, OpenGL ES, SpriteKit, etc) in which the views are rendered
 
-根据说明可以看出来这个方法对于 UIKit, Quartz, OpenGL ES, SpriteKit等技术实现渲染的控件都能截图。
+根据说明可以看出来这个方法对于 UIKit, Quartz, OpenGL ES, SpriteKit等技术实现渲染的控件都能截图。
 
 ```
 - (UIImage *)snapshot:(UIView *)view
@@ -251,7 +306,7 @@ iOS 上显示的图像根据绘制机制的不同大致可以分为 UIKit, Quart
     return image;
 }
 ```
-由于有些同学反馈说这个方法会在 iOS7 上 crash。为了安全起见，参考了 [这里](https://blog.csdn.net/taishanduba/article/details/52156850)这个同学的建议，在 Apple 提供的解决方法上做了一些修改。
+有些同学反馈说这个方法会在 iOS7 上 crash。为了安全起见，参考了 [这里](https://blog.csdn.net/taishanduba/article/details/52156850)这个同学的建议，在 Apple 提供的解决方法上做了一些修改。
 
 - 添加 frame 为 empty 的判断
 - afterScreenUpdates 的参数设置为 NO
