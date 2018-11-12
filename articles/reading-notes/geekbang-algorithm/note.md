@@ -271,7 +271,7 @@ address = base_address + ( i * n + j) * type_size
 ### tips
 - 利用 LeetCode 刷题
 
-    LeetCode上的测试用例往往很全，能测试出特殊情况下的 bug
+    LeetCode上的测试用例往往很全，能测试出特殊情况下的 bug
 - 不用太纠结
 
     在一定时间内实在想不出来就去搜一下答案，没必要一直纠结。有些巧妙的解题思路确实不是很好想出来的。
