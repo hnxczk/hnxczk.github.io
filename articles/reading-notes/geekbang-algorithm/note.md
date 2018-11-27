@@ -340,12 +340,6 @@ address = base_address + ( i * n + j) * type_size
 ### LeetCode 
 20,155,232,844,224,682,496gi
 
-<<<<<<< HEAD
-=======
-### LeetCode 
-20,155,232,844,224,682,496
-
->>>>>>> c71156e5beab957f8dc2d4bc2758d88b29a2328e
 ## 09 队列
 
 ### 定义
