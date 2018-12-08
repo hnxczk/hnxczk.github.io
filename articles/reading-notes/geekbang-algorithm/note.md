@@ -1045,3 +1045,122 @@ O(n * k), k 是数据的维度（比如上面的例子中就是手机号的位�
 4. 在排序区间中，当元素个数小于某个常数是，可以考虑使用 O(n^2) 级别的插入排序
 5. 用哨兵简化代码，每次排序都减少一次判断，尽可能把性能优化到极致
 
+## 15 二分查找（上）
+
+### 思想
+- 二分查找针对的是一个有序的数据集合，查找思想有点类似分治思想。
+- 每次都通过跟区间的中间元素对比，将待查找的区间缩小为之前的一半
+- 直到找到要查找的元素，或者区间被缩小为 0 说明查找的元素不存在
+
+### 二分查找时间复杂度
+
+每查找一次之后，剩余需要查找的区间就会缩小一半，这时候在最坏情况下需要将查找区间缩小到 0。因此 n / (2^k) = 1, k = log2n,时间复杂度就是 O(logn).
+
+对数时间复杂度 O(logn) 某些情况下比常数级 O（1）还要高效，因为用大 O 标记法表示时间复杂度的时候，会省略掉常数、系数和低阶，如果这些常数系数有可能是非常大的数值，这时候 O(logn) 将优于 O（1）。
+
+### 代码实现
+
+循环
+```
+int binarySearch(int arr[], int n, int item)
+{
+    int start = 0, end = n - 1;
+    while (start <= end) {
+        int middle = start + ((end - start) >> 1);
+        if (arr[middle] > item) {
+            end = middle - 1;
+        } else if (arr[middle] < item) {
+            start = middle + 1;
+        } else {
+            return middle;
+        }
+    }
+    return -1;
+}
+```
+
+递归
+```
+int binary(int arr[], int start, int end, int item)
+{
+    if (start > end) return -1;
+    
+    int middle = start + ((end - start) >> 1);
+    int midVal = arr[middle];
+    if (midVal > item) {
+        return binary(arr, start, middle - 1, item);
+    } else if (midVal < item) {
+        return binary(arr, middle + 1, end, item);
+    } else {
+        return middle;
+    }
+}
+
+int binarySearch_1(int arr[], int n, int item)
+{
+    return binary(arr, 0, n - 1, item);
+}
+```
+
+#### 注意点
+- 循环退出条件 start <= end
+- middle 的取值 (start + end) / 2 在数值较大的时候可能出现溢出
+- start end 的更新注意 +1  和 -1。如果直接写成 low=mid 或者 high=mid，就可能会发生死循环。比如，当 high=3，low=3 时，如果 a[3] 不等于 value，就会导致一直循环不退出。
+
+### 使用场景
+- 必须是顺序表中的数组，当时链表的时候复杂度会升高
+- 必须是有序数据
+- 数据量太小不适合二分查找
+- 数据比较较为耗费性能的时候就需要使用二分查找
+- 数据量太大也不适合二分查找
+- 大部分情况下，用二分查找可以解决的问题，用散列表、二叉树都可以解决。但是不管是散列表还是二叉树，都会需要比较多的额外的内存空间，二分查找只需要一个数组，较为节省空间
+
+### QA
+
+#### 求一个数 x 的平方根”？要求精确到小数点后 6 位
+
+利用二分查找 0 到 x 之间的数 mid ,直到 mid * mid - x < 1e-6
+
+```
+double sqrt(double x)
+{
+    double start = 0, end = x, middle = 0;
+    while (fabs(end - start) >= 1e-6) {
+        middle = start + ((end - start) / 2);
+        if (middle * middle > x) {
+            end = middle;
+        } else if (middle * middle < x) {
+            start = middle;
+        } else {
+            return middle;
+        }
+    }
+    return middle;
+}
+```
+
+#### 分析使用链表储存数据时二分查找的时间复杂度
+
+使用数组实现二分查找的时候，由于数组具有根据下标随机访问时间复杂度为 O（1）的特性，因此其主要的费时操作就是不断的缩小查找区间，区间缩小多少次就执行了多少步操作，因此可以计算出其时间复杂度是 O(logn)
+
+使用链表来实现二分查找的时候，由于链表访问某个位置的时间复杂度是 O(n), 因此在查找阶段需要进行的操作如下：
+- 第一次查找中点，移动指针 n/2 次
+- 第二次，移动 n/4 次
+- 第三次，移动 n/8 次
+- ......
+- 第 k 次， 移动 n/(2^k) 次
+
+这时候在由于比较这一操作相较于移动指针的操作来说是常数阶，因此可以忽略
+
+由此可以看出这是一个等比公式，在最坏情况下首项是 n/(2^k) = 1 (这时候 k = log2n), 公比 是 2，数列的项数等于 k。因此根据等比数列求和公式可以得出 
+
+- sum = (1 - 2^k) / (1 - 2)
+- sum = 2^k - 1
+- sum = 2^(log2n) - 1
+- sum = n - 1
+
+因此算法的时间复杂度就是 O(n), 与遍历查找相同。但由于需要进行额外的其他操作，因此其效率低于遍历查找。
+
+
+
+
