@@ -1162,5 +1162,179 @@ double sqrt(double x)
 因此算法的时间复杂度就是 O(n), 与遍历查找相同。但由于需要进行额外的其他操作，因此其效率低于遍历查找。
 
 
+## 16 二分查找（下）
 
-
+### 变体-：查找第一个值等于给定值的元素
+
+```
+int _bsearch(int arr[], int n, int item)
+{
+    int start = 0, end = n - 1;
+    while (start <= end) {
+        int mid = start + (end - start) / 2;
+        if (arr[mid] > item) {
+            end = mid - 1;
+        } else if (arr[mid] < item) {
+            start = mid + 1;
+        } else {
+            if ((mid == 0) || (arr[mid - 1] != item )) {
+                return mid;
+            } else {
+                end = mid - 1;
+            }
+        }
+    }
+    return -1;
+}
+```
+
+思路：
+
+1. 使用二分查找进行处理
+2. arr[mid] 大于 或者 小于 要查找的 item 的时候与二分查找处理相同
+3. arr[mid] 等于 item 的时候，说明 mid 的值就是要查找的值，但是由于其可能有多个这时候需要额外判断
+   
+   1. 如果 mid == 0 ，说明 mid 位于数组的首位，一定是要查找的
+   2. mid - 1 位置的元素 不等于 要查找的值说明 mid 位置的元素就是第一个 目标值
+
+### 变体二：查找最后一个值等于给定值的元素
+
+```
+int _bsearch(int arr[], int n, int item)
+{
+    int start = 0, end = n - 1;
+    while (start <= end) {
+        int mid = start + (end - start) / 2;
+        if (arr[mid] > item) {
+            end = mid - 1;
+        } else if (arr[mid] < item) {
+            start = mid + 1;
+        } else {
+            if ((mid == n - 1) || (arr[mid + 1] != item )) {
+                return mid;
+            } else {
+                start = mid + 1;
+            }
+        }
+    }
+    return -1;
+}
+```
+
+思路与变体一基本相同，也是要判断 arr[mid] 等于 item 的情况
+
+### 变体三：查找第一个大于等于给定值的元素
+
+```
+int _bsearch(int arr[], int n, int item)
+{
+    int start = 0, end = n - 1;
+    while (start <= end) {
+        int mid = start + (end - start) / 2;
+        if (arr[mid] >= item) {
+            if ((mid == 0) || (arr[mid - 1] < item )) {
+                return mid;
+            } else {
+                end = mid - 1;
+            }
+        } else {
+            start = mid + 1;
+        }
+    }
+    return -1;
+}
+```
+
+思路
+
+1. 使用二分查找
+2. 当 arr[mid] 小于 要查找的值，则 start = mid + 1
+3. 当 arr[mid] 大于等于 要查找的值的时候
+   
+   1. 如果 mid == 0 说明，mid 就是数组首位，满足条件
+   2. 如果 arr[mid - 1] 小于 要查找的值，说明 mid 位置的元素就是第一个大于等于给定值的元素
+   3. 其他情况下说明 mid 位置的元素虽然大于目标元素但不是第一个，需要继续进行查找
+
+### 变体四：查找第一个小于等于给定值的元素
+
+```
+int _bsearch(int arr[], int n, int item)
+{
+    int start = 0, end = n - 1;
+    while (start <= end) {
+        int mid = start + (end - start) / 2;
+        if (arr[mid] <= item) {
+            if ((mid == n - 1) || (arr[mid + 1] > item )) {
+                return mid;
+            } else {
+                start = mid + 1;
+            }
+        } else {
+            end = mid - 1;
+        }
+    }
+    return -1;
+}
+```
+
+与变体三的思路基本相同
+
+### QA
+#### 1. 如何快速定位 IP 归属地
+
+如何快速定位出一个IP地址的归属地？
+
+>[202.102.133.0, 202.102.133.255] 山东东营市 
+[202.102.135.0, 202.102.136.255] 山东烟台 
+[202.102.156.34, 202.102.157.255] 山东青岛 
+[202.102.48.0, 202.102.48.255] 江苏宿迁 
+[202.102.49.15, 202.102.51.251] 江苏泰州 
+[202.102.56.0, 202.102.56.255] 江苏连云港
+
+假设我们有 12 万条这样的 IP 区间与归属地的对应关系，如何快速定位出一个IP地址的归属地呢？
+
+将所有的 IP 区间的开始位置转化为 32 位 的数，然后放到数组中进行排序。
+
+这样以来问题就转换为查找这个数组中最后一个小于等于目标 IP 对应的数值 的问题
+ 
+#### 2. 如果有序数组是一个循环有序数组，比如 4，5，6，1，2，3。针对这种情况，如何实现一个求“值等于给定值”的二分查找算法呢？
+
+
+```
+int _bsearch(int nums[], int n, int target)
+{
+    int left = 0,right = numsSize-1;
+    while(left<=right){
+        int mid = (left+right)/2;
+        
+        if(nums[mid]==target){
+            //找到了，返回
+            return mid;
+        }
+        
+        //左半边是正常序列
+        if(nums[left]<=nums[mid]){
+            //target在这个序列
+            if(target>=nums[left] && target<=nums[mid]){
+                //分到左半边
+                right = mid-1;
+            }else{
+                //分到右半边
+                left = mid+1;
+            }
+        }else{
+            //右半边是正常序列
+            //target在这个序列
+            if(target>=nums[mid] && target<=nums[right]){
+                //分到右半边
+                left = mid+1;
+            }else{
+                //分到左半边
+                right = mid-1;
+            }
+        }
+    }
+    return -1;
+}
+```
+
