@@ -137,7 +137,30 @@ dispatch_queue_t concurrentGet = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORI
     });
 ```
 这段代码中全部执行完成这个任务就会在任务1、2、3全部执行后调用。
+
+还可以使用 `dispatch_group_enter` `dispatch_group_leave` 来实现相识的功能。与上面的区别就是不需要开新的线程
+
+```
+dispatch_group_t group = dispatch_group_create();
+
+dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        NSLog(@"全部执行完成");
+    });
+
+dispatch_group_enter(group);
+NSLog(@"任务1执行");
+dispatch_group_leave(group);
+
+dispatch_group_enter(group);
+NSLog(@"任务2执行");
+dispatch_group_leave(group);
+
+dispatch_group_enter(group);
+NSLog(@"任务3执行");
+dispatch_group_leave(group);
+```
 ## `dispatch_barrier_async`
+
 当多个线程同时更新资源的时候会造成数据竞争，这时候我们需要使用`dispatch_barrier_async`。
 
 比如我们经常会碰到的一个问题，atomic修饰的属性一定是安全的吗？
@@ -172,6 +195,7 @@ _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 需要注意的是如果我们调用`dispatch_barrier_async`时提交到一个global queue，barrier blocks执行效果与`dispatch_async()`一致；只有将Barrier blocks提交到使用`DISPATCH_QUEUE_CONCURRENT`属性创建的并行queue时它才会表现的如同预期。
 
 ## `dispatch_semaphore`
+
 `dispatch_barrier_async`能在任务这种粒度上来防止数据竞争，当我们需要更细粒度控制的时候就需要使用`dispatch_semaphore`。
 >首先介绍一下信号量(semaphore)的概念。信号量是持有计数的信号，不过这么解释等于没解释。我们举个生活中的例子来看看。
 >
@@ -213,7 +237,8 @@ _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     }
 ```
 具体使用的例子
-1、控制并发数
+
+1. 控制并发数
 
 ```
 // 创建队列组
@@ -232,8 +257,10 @@ _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         });   
     }
 ```
-2、限制请求频次
+2. 限制请求频次
 每次请求发出后由于信号量0则其他线程必须等待，只有等请求返回成功或者失败后信号量设为1，这时候才能继续其他的网络请求。
+
+需要注意死锁的问题。
 
 ```
 - (void)request1{
