@@ -345,3 +345,138 @@ UIImage *frameImg = [UIImage imageWithCGImage:videoImage]    CGImageRelease(vide
 - [记录iOS7截图drawViewHierarchyInRect:afterScreenUpdates崩溃](https://blog.csdn.net/taishanduba/article/details/52156850)
 
 - [AVPlayer直播视频截图](https://www.jianshu.com/p/753a6e8cd90a)
+
+## 静态变量初始化
+今天在跟一个朋友在讨论使用串行队列保证线程安全的时候遇到了一个编译错误。代码如下。
+
+```
+static dispatch_queue_t serialQueue = dispatch_queue_create("static", NULL);
+
+@implementation Student
+
+@synthesize age = _age;
+
+- (NSInteger)age
+{
+    __block NSInteger age = 0;
+    dispatch_sync(serialQueue, ^{
+        age = self->_age;
+    });
+    return age;
+}
+
+- (void)setAge:(NSInteger)age
+{
+    dispatch_async(serialQueue, ^{
+        self->_age = age;
+    });
+}
+
+@end
+```
+在声明静态全局串行队列的时候报 `Initializer element is not a compile-time constant` 的错误。
+
+后来在[这里](https://stackoverflow.com/questions/12304740/initializer-element-is-not-a-compile-time-constant-why)找到了相关解释。
+大意就是在 C 和 Objective-C 中全局变量的值要在编译时确定，不能在执行时确定。
+
+```
+static NSInteger i = 6 + 3;
+```
+上面这个代码是不会报错的。
+但是换成下面这个的话就会报错。
+```
+static NSInteger a = 6;
+static NSInteger b = 3;
+static NSInteger i = a + b;
+```
+
+解决办法的话大致有以下几种
+1. 由于 ` C++ 和 Objective-C++ are more lenient and allow non-compile-time constants.` 因此自接把当前 .m 文件修改成 .mm 就可以了。
+2. 在声明的时候赋值为 nil 然后在方法中赋值。
+
+```
+static dispatch_queue_t serialQueue = nil;
+
+@implementation Student
+
+@synthesize age = _age;
+
++ (void)initialize
+{
+    serialQueue = dispatch_queue_create("static", NULL);
+}
+
+- (NSInteger)age
+{
+    __block NSInteger age = 0;
+    dispatch_sync(serialQueue, ^{
+        age = self->_age;
+    });
+    return age;
+}
+
+- (void)setAge:(NSInteger)age
+{
+    dispatch_async(serialQueue, ^{
+        self->_age = age;
+    });
+}
+
+@end
+```
+
+另外需要注意的是如果把 `age = self->_age;` 中的 `self->` 去掉的话会提示 `Block implicitly retains 'self'; explicitly mention 'self' to indicate this is intended behavior` 的警告⚠️。这其实只是提醒我们只写 `_age` 的时候 self 也会被 block 所捕获，需要注意循环引用的问题。加上 `self->` 可以让我们更清楚这个捕获的存在。当然现在这个用法是不会出现循环引用的。
+
+## 使用 gem 安装 cocoapods 等，报错 `You don't have write permissions for the /Library/Ruby/Gems/2.3.0 directory.`
+
+字面意思就是没有往这个目录写文件的权限。网上大部分文章都说可以通过下面的命令来完成安装。
+
+```
+sudo gem install cocoapods -n /usr/local/bin
+```
+
+我使用 `gem install help` 查看了一下这个命令的说明，上面的命令就是利用管理员权限把 cocoapods 安装到 `/usr/local/bin` 目录下。
+
+这种也能解决问题，不过每次使用 gem 安装都需要使用这种命令，有没有更好的方法呢？
+
+还真有！而且解释了为什么会出现这种情况。
+
+我们都知道 mac 都是自带 ruby 的，其路径就是 `/Library/Ruby`。 而当使用 gem 安装东西的时候就会往系统的 `/Library` 中添加东西，因此需要管理员的权限。
+
+这样以来解决的办法就是自己安装一个 ruby , 使其与系统自带的区分开。
+
+### 解决步骤
+
+1. 使用 rvm 安装 ruby 环境
+
+```
+curl -L https://get.rvm.io | bash -s stable
+source ~/.rvm/scripts/rvm
+```
+
+>需要注意的是我第一次安装的时候提示秘钥失效的错误需要使用西面的命令
+
+>```
+>command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+>command curl -sSL https://rvm.io/pkuczynski.asc | gpg --import -
+>```
+
+2. 使用 rvm 安装 ruby
+
+```
+rvm list known // 查看支持的版本
+sudo rvm install --force 2.6 // 安装特定的版本
+rvm 2.6 --default // 设置
+```
+
+3. 安装 cocoapods
+
+```
+gem install cocoapods
+```
+
+### 参考
+
+1. [Mac更新Ruby环境及可能遇到的问题](https://www.jianshu.com/p/42ff2255f0b3)
+2. [How do I fix the “You don't have write permissions into the /usr/bin directory” error when installing Rails?](https://stackoverflow.com/questions/2893889/how-do-i-fix-the-you-dont-have-write-permissions-into-the-usr-bin-directory)
+3. [Mac OS X 下使用 Ruby Gem 的两个坑](https://www.jianshu.com/p/bb9fe3fd45d0)
