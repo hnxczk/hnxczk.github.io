@@ -23,7 +23,7 @@
 
 ## 源码解析
 - [SDWebImage](./articles/sd.md)
-- [Runtime](./articles/runtime/00.md)
+- [Runtime](./articles/runtime/index.md)
 
 ## 算法
 - [哈希表](./articles/hash-map.md)
