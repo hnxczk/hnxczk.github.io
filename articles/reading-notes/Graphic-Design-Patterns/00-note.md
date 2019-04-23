@@ -4,7 +4,7 @@
 
 ## 看懂 UML 类图和时序图
 
-见 [这里](../../../../uml.md)
+见 [这里](https://github.com/hnxczk/hnxczk.github.io/blob/master/articles/uml.md)
 
 ## 创建型模式
 
