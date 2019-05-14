@@ -18,7 +18,7 @@
 
 ## 前端
 
-- [MDN 合集](./articles/MDN.md)
+- [MDN CSS](./articles/mdn-css.md)
 
 ## 读书笔记
 - [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
