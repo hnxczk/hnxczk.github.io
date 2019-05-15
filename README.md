@@ -20,6 +20,7 @@
 
 ### MDN 合集
 - [MDN CSS](./articles/mdn-css.md)
+- [MDN JavaScript](./articles/mdn-js.md)
 
 ## 读书笔记
 - [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
