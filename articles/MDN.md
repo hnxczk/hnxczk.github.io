@@ -4,6 +4,8 @@
 
 在整理的过程中基本上按照 MDN 上面的大纲进行的。并修改了部分内容的顺序以适应思维导图的样式。
 
+源文件在这里 [CSS](./source/CSS.xmind) 、[JavaScript](./source/JavaScript.xmind)。 需要用 [XMind ZEN](https://www.xmind.cn/zen/) 打开(试用版完全够用)。
+
 ## 总结
 
 ### CSS
