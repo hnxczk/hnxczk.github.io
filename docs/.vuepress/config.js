@@ -2,6 +2,10 @@
 module.exports = {
     title: 'Hello VuePress',
     description: 'Just playing',
+    base: '/blog', // 这是部署到github相关的配置
+    markdown: {
+        lineNumbers: false // 代码块显示行号
+    },
     themeConfig: {
         nav: [
             { text: 'Home', link: '/' },
