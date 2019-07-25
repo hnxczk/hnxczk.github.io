@@ -26,16 +26,16 @@ footer: MIT Licensed | Copyright © 2019 Chou
 
 
 ## 读书笔记
-- [图说设计模式](./articles/reading-notes/Graphic-Design-Patterns/00-note.md)
-- [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/00-note.md)
-- [极客时间-算法](./articles/reading-notes/geekbang-algorithm/index.md)
-- [极客时间-从学前端](./articles/reading-notes/geekbang-winter/index.md)
+- [图说设计模式](./articles/reading-notes/Graphic-Design-Patterns/README.md)
+- [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/README.md)
+- [极客时间-算法](./articles/reading-notes/geekbang-algorithm/README.md)
+- [极客时间-从学前端](./articles/reading-notes/geekbang-winter/README.md)
 - [极客时间网络学习笔记](./articles/network-study.md)
 
 
 ## 源码解析
 - [SDWebImage](./articles/sd.md)
-- [Runtime](./articles/runtime/index.md)
+- [Runtime](./articles/runtime/README.md)
   1. [编译 Runtime 源码 （objc4-760.1）](./articles/runtime/00.md)
   2. [Runtime 简介](./articles/runtime/01.md)
   3. [类和对象的基本数据结构](./articles/runtime/02.md)

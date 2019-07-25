@@ -11,7 +11,6 @@ module.exports = {
             {
                 text: 'iOS',
                 items: [
-                    { text: '笔记', link: '/articles/note/' },
                     { text: 'GCD', link: '/articles/gcd/' },
                     { text: 'iOS中的锁', link: '/articles/locks/' },
                     { text: '性能优化', link: '/articles/performance-optimization/' },
@@ -23,6 +22,7 @@ module.exports = {
                     { text: 'InfiniteTree', link: 'https://github.com/hnxczk/InfiniteTree' },
                     { text: 'ScrollViewAutoAdjust', link: 'https://github.com/hnxczk/ScrollViewAutoAdjust' },
                     { text: 'Instruments 分析', link: '/articles/instruments/' },
+                    { text: '笔记', link: '/articles/note/' },
                 ]
             },
             {
@@ -34,10 +34,10 @@ module.exports = {
             {
                 text: '读书笔记',
                 items: [
-                    { text: 'Head First 设计模式', link: '/articles/reading-notes/head-first-design-pattern/00-note/' },
-                    { text: '图说设计模式', link: '/articles/reading-notes/Graphic-Design-Patterns/00-note/' },
-                    { text: '极客时间-算法', link: '/articles/reading-notes/geekbang-algorithm/index/' },
-                    { text: '极客时间-重学前端', link: '/articles/reading-notes/geekbang-winter/index/' },
+                    { text: 'Head First 设计模式', link: '/articles/reading-notes/head-first-design-pattern/' },
+                    { text: '图说设计模式', link: '/articles/reading-notes/Graphic-Design-Patterns/' },
+                    { text: '极客时间-算法', link: '/articles/reading-notes/geekbang-algorithm/' },
+                    { text: '极客时间-重学前端', link: '/articles/reading-notes/geekbang-winter/' },
                     { text: '极客时间-网络', link: '/articles/network-study/' },
                 ]
             },
