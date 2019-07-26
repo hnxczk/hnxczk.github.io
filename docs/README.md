@@ -29,7 +29,7 @@ footer: MIT Licensed | Copyright © 2019 Chou
 - [图说设计模式](./articles/reading-notes/Graphic-Design-Patterns/README.md)
 - [Head First 设计模式](./articles/reading-notes/head-first-design-pattern/README.md)
 - [极客时间-算法](./articles/reading-notes/geekbang-algorithm/README.md)
-- [极客时间-从学前端](./articles/reading-notes/geekbang-winter/README.md)
+- [极客时间-重学前端](./articles/reading-notes/geekbang-winter/README.md)
 - [极客时间网络学习笔记](./articles/network-study.md)
 
 
