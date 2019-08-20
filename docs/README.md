@@ -10,6 +10,7 @@ footer: MIT Licensed | Copyright © 2019 Chou
 - [MDN 学习记录](./articles/MDN.md)
 - [JavaScript 类型](./articles/reading-notes/geekbang-winter/02.md)
 - [JavaScript 对象和原型链](./articles/reading-notes/geekbang-winter/03.md)
+- [JavaScript 执行上下文和执行栈](./articles/reading-notes/geekbang-winter/05.md)
 
 ## iOS
 
