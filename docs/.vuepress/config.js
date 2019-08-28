@@ -28,7 +28,11 @@ module.exports = {
             {
                 text: '前端',
                 items: [
-                    { text: 'MDN CSS JS 学习笔记', link: '/articles/mdn/' },
+                    { text: 'MDN 学习笔记', link: '/articles/mdn/' },
+                    { text: 'JavaScript 类型', link: '/articles/reading-notes/geekbang-winter/03/' },
+                    { text: 'JavaScript 对象和原型链', link: '/articles/reading-notes/geekbang-winter/04/' },
+                    { text: 'JavaScript 执行上下文和执行栈', link: '/articles/reading-notes/geekbang-winter/05/' },
+                    { text: 'JavaScript 作用域链与闭包', link: '/articles/reading-notes/geekbang-winter/06/' },
                 ]
             },
             {
