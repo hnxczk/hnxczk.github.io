@@ -56,3 +56,6 @@
 
 ## 优质博客
 - [合集](./articles/blogs.md)
+
+## 随笔
+- [合集](./articles/essay/README.md)
