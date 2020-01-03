@@ -6,7 +6,7 @@
 
 源文件在这里 [CSS](./source/CSS.xmind) 、[JavaScript](./source/JavaScript.xmind)。 需要用 [XMind ZEN](https://www.xmind.cn/zen/) 打开(试用版完全够用)。
 
-## 总结
+## 笔记
 
 ### CSS
 
@@ -81,17 +81,6 @@ false、undefined、null、0、NaN、空字符串（""）
 for...in 也会遍历数组对象的属性
 
 #### 5. Map 中的键值是有序的，而添加到对象中的键则不是。
-
-## TODO
-
-### CSS 
-1. CSS Grid 
-2. CSS 动画
-
-### JS
-
-1. ~~内存管理~~
-2. ~~事件循环~~
 
 ## CSS
 ![](./images/CSS.png)

@@ -12,7 +12,7 @@ footer: MIT Licensed | Copyright © 2019 Chou
 - [JavaScript 对象和原型链](./articles/reading-notes/geekbang-winter/03.md)
 - [JavaScript 执行上下文和执行栈](./articles/reading-notes/geekbang-winter/05.md)
 - [JavaScript 作用域链与闭包](./articles/reading-notes/geekbang-winter/06.md)
-- [JavaScript 从E CMAScript 规范解读 this](./articles/reading-notes/geekbang-winter/07.md)
+- [JavaScript 从ECMAScript 规范解读 this](./articles/reading-notes/geekbang-winter/07.md)
 
 ## iOS
 
@@ -52,7 +52,7 @@ footer: MIT Licensed | Copyright © 2019 Chou
 
 ## 网络
 - [网络概述](./articles/networking.md)
-- [HTTP与HTTPS](./articles/HTTP-HTTPS.md)
+- [HTTP 与 HTTPS](./articles/HTTP-HTTPS.md)
 
 ## 操作系统
 - [内存管理](./articles/memory-management.md)
@@ -69,3 +69,6 @@ footer: MIT Licensed | Copyright © 2019 Chou
 
 ## 优质博客
 - [合集](./articles/blogs.md)
+
+## 随笔
+- [合集](./articles/essay/README.md)
