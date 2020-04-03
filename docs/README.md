@@ -52,7 +52,8 @@ footer: MIT Licensed | Copyright © 2019 Chou
 
 ## 网络
 - [网络概述](./articles/networking.md)
-- [HTTP 与 HTTPS](./articles/HTTP-HTTPS.md)
+- [HTTP](./articles/network/http.md)
+- [HTTPS](./articles/network/https.md)
 
 ## 操作系统
 - [内存管理](./articles/memory-management.md)
